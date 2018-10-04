@@ -626,7 +626,7 @@ namespace JsonLD.Core
                         else
                         {
                             // 4.3.2.3)
-                            if (localProperty.StartsWith("_:") && !api.opts.GetProduceGeneralizedRdf())
+                            if (localProperty.StartsWith("_:") && !api.opts.ProduceGeneralizedRdf)
                             {
                                 continue;
                             }

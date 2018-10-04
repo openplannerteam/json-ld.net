@@ -1400,17 +1400,17 @@ namespace JsonLD.Core
         {
             // create framing state
             JsonLdApi.FramingContext state = new JsonLdApi.FramingContext(this);
-            if (this.opts.GetEmbed() != null)
+            if (this.opts.Embed != null)
             {
-                state.embed = this.opts.GetEmbed().Value;
+                state.embed = opts.Embed.Value;
             }
-            if (this.opts.GetExplicit() != null)
+            if (this.opts.Explicit != null)
             {
-                state.@explicit = this.opts.GetExplicit().Value;
+                state.@explicit = opts.Explicit.Value;
             }
-            if (this.opts.GetOmitDefault() != null)
+            if (this.opts.OmitDefault != null)
             {
-                state.omitDefault = this.opts.GetOmitDefault().Value;
+                state.omitDefault = opts.OmitDefault.Value;
             }
             // use tree map so keys are sotred by default
             // XXX BUG BUG BUG XXX (sblom) Figure out where this needs to be sorted and use extension methods to return sorted enumerators or something!
@@ -2031,13 +2031,13 @@ namespace JsonLD.Core
                     }
                     // 3.5.4)
                     if (JSONLDConsts.RdfType.Equals(predicate) && (@object.IsIRI() || @object.IsBlankNode
-                        ()) && !opts.GetUseRdfType())
+                        ()) && !opts.UseRdfType)
                     {
                         JsonLdUtils.MergeValue(node, "@type", @object.GetValue());
                         continue;
                     }
                     // 3.5.5)
-                    JObject value = @object.ToObject(opts.GetUseNativeTypes());
+                    JObject value = @object.ToObject(opts.UseNativeTypes);
                     // 3.5.6+7)
                     JsonLdUtils.MergeValue(node, predicate, value);
                     // 3.5.8)

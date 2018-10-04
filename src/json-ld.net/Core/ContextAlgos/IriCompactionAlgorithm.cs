@@ -61,7 +61,7 @@ namespace JsonLD.Core.ContextAlgos
                     // use suffix as relative iri if it is not a term in the
                     // active context
                     var suffix = iri.Substring(vocab.Length);
-                    if (!activeContext._termDefinitions.ContainsKey(suffix))
+                    if (!activeContext.TermDefinitions.ContainsKey(suffix))
                     {
                         return suffix;
                     }
@@ -71,9 +71,9 @@ namespace JsonLD.Core.ContextAlgos
             // 4)
             string compactIri = null;
             // 5)
-            foreach (var term1 in activeContext._termDefinitions.GetKeys())
+            foreach (var term1 in activeContext.TermDefinitions.GetKeys())
             {
-                var termDefinitionToken = activeContext._termDefinitions[term1];
+                var termDefinitionToken = activeContext.TermDefinitions[term1];
                 // 5.1)
                 if (termDefinitionToken.Type == JTokenType.Null
                     || termDefinitionToken.Equals(value)
@@ -112,8 +112,8 @@ namespace JsonLD.Core.ContextAlgos
                 // 5.3)
                 if ((compactIri == null
                        || JsonLdUtils.CompareShortestLeast(candidate, compactIri) < 0)
-                    && (!activeContext._termDefinitions.ContainsKey(candidate) 
-                        || ((IDictionary<string, JToken>) activeContext._termDefinitions[candidate])["@id"].SafeCompare(iri) 
+                    && (!activeContext.TermDefinitions.ContainsKey(candidate) 
+                        || ((IDictionary<string, JToken>) activeContext.TermDefinitions[candidate])["@id"].SafeCompare(iri) 
                         && value.IsNull())
                     )
                 {
@@ -346,8 +346,8 @@ namespace JsonLD.Core.ContextAlgos
                 // 2.16.1)
                 var result = activeContext.CompactIri(o["@id"].ToString(), null, true, true);
 
-                var termDefs = activeContext._termDefinitions.ContainsKey(result)
-                    ? (IDictionary<string, JToken>) activeContext._termDefinitions[result]
+                var termDefs = activeContext.TermDefinitions.ContainsKey(result)
+                    ? (IDictionary<string, JToken>) activeContext.TermDefinitions[result]
                     : null;
                 if (termDefs != null
                     && termDefs.ContainsKey("@id")

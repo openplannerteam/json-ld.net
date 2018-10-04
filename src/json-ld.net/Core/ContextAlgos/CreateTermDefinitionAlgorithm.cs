@@ -30,14 +30,14 @@ namespace JsonLD.Core.ContextAlgos
                 throw new JsonLdError(JsonLdError.Error.KeywordRedefinition, term);
             }
 
-            Collections.Remove(activeContext._termDefinitions, term);
+            Collections.Remove(activeContext.TermDefinitions, term);
             var value = localContext[term];
             if (value.IsNull() || 
                 (value is JObject o 
                  && o.ContainsKey("@id")
                  && o["@id"].IsNull()))
             {
-                activeContext._termDefinitions[term] = null;
+                activeContext.TermDefinitions[term] = null;
                 defined[term] = true;
                 return;
             }
@@ -131,7 +131,7 @@ namespace JsonLD.Core.ContextAlgos
                 }
 
                 definition["@reverse"] = true;
-                activeContext._termDefinitions[term] = definition;
+                activeContext.TermDefinitions[term] = definition;
                 defined[term] = true;
                 return;
             }
@@ -178,9 +178,9 @@ namespace JsonLD.Core.ContextAlgos
                         activeContext.CreateTermDefinition(localContext, prefix, defined);
                     }
 
-                    if (activeContext._termDefinitions.ContainsKey(prefix))
+                    if (activeContext.TermDefinitions.ContainsKey(prefix))
                     {
-                        definition["@id"] = (string) (((IDictionary<string, JToken>) activeContext. _termDefinitions[prefix])["@id"]) +
+                        definition["@id"] = (string) (((IDictionary<string, JToken>) activeContext. TermDefinitions[prefix])["@id"]) +
                                             suffix;
                     }
                     else
@@ -238,7 +238,7 @@ namespace JsonLD.Core.ContextAlgos
             }
 
             // 18)
-            activeContext._termDefinitions[term] = definition;
+            activeContext.TermDefinitions[term] = definition;
             defined[term] = true;
         }
     }

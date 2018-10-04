@@ -70,7 +70,7 @@ namespace JsonLD.Core.ContextAlgos
             // 3.1)
             if (element.Type == JTokenType.Null)
             {
-                return new Context(_activeContext._options);
+                return new Context(_activeContext.Options);
             }
 
             // 3.2.3

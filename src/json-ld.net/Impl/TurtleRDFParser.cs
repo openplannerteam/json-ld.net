@@ -167,10 +167,10 @@ namespace JsonLD.Impl
                 Matcher match = TurtleRDFParser.Regex.NextEoln.Matcher(this.line);
                 if (match.Find())
                 {
-                    string[] split = match.Group(0).Split(string.Empty + TurtleRDFParser.Regex.Eoln);
-                    this.lineNumber += (split.Length - 1);
-                    this.linePosition += split[split.Length - 1].Length;
-                    this.line = JsonLD.JavaCompat.Substring(this.line, match.Group(0).Length);
+                    var split = match.Group(0).Split(string.Empty + TurtleRDFParser.Regex.Eoln);
+                    lineNumber += (split.Length - 1);
+                    linePosition += split[split.Length - 1].Length;
+                    line = line.Substring(match.Group(0).Length);
                 }
             }
 
@@ -179,10 +179,10 @@ namespace JsonLD.Impl
             {
                 if (len > 0)
                 {
-                    this.linePosition += len;
-                    this.line = JsonLD.JavaCompat.Substring(this.line, len);
+                    linePosition += len;
+                    line = line.Substring(len);
                 }
-                while (!string.Empty.Equals(this.line))
+                while (!string.Empty.Equals(line))
                 {
                     // clear any whitespace
                     Matcher match = TurtleRDFParser.Regex.CommentOrWs.Matcher(this.line);
@@ -195,8 +195,8 @@ namespace JsonLD.Impl
                             this.lineNumber += 1;
                             end = eoln.End();
                         }
-                        this.linePosition = match.Group(0).Length - end;
-                        this.line = JsonLD.JavaCompat.Substring(this.line, match.Group(0).Length);
+                        linePosition = match.Group(0).Length - end;
+                        line = line.Substring(match.Group(0).Length);
                     }
                     else
                     {

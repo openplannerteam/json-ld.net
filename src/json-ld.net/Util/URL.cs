@@ -260,7 +260,7 @@ namespace JsonLD.Util
             }
 
             // remove root from IRI and parse remainder
-            URL rel = URL.Parse(JsonLD.JavaCompat.Substring(iri, root.Length));
+            URL rel = Parse(iri.Substring(root.Length));
             // remove path segments that match
             IList<string> baseSegments = new List<string>(System.Linq.Enumerable.ToList(@base
                 .normalizedPath.Split("/")));
@@ -404,7 +404,7 @@ namespace JsonLD.Util
                     .Equals(parsed.host))
             {
                 // must parse authority from pathname
-                parsed.pathname = JsonLD.JavaCompat.Substring(parsed.pathname, 2);
+                parsed.pathname = parsed.pathname.Substring(2);
                 int idx = parsed.pathname.IndexOf("/");
                 if (idx == -1)
                 {

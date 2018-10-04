@@ -424,8 +424,7 @@ namespace JsonLD.Impl
                 {
                     usedNamespaces.Add(prefix);
                     // return the prefixed URI
-                    return availableNamespaces[prefix] + ":" + JsonLD.JavaCompat.Substring(uri, prefix.
-                        Length);
+                    return availableNamespaces[prefix] + ":" + uri.Substring(prefix.Length);
                 }
             }
             // return the full URI

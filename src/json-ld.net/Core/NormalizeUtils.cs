@@ -111,9 +111,9 @@ namespace JsonLD.Core
                                 // sort normalized output
                                 normalized.SortInPlace();
                                 // handle output format
-                                if (options.format != null)
+                                if (options.Format != null)
                                 {
-                                    if ("application/nquads".Equals(options.format))
+                                    if ("application/nquads".Equals(options.Format))
                                     {
                                         string rval = string.Empty;
                                         foreach (string n in normalized)
@@ -124,7 +124,7 @@ namespace JsonLD.Core
                                     }
                                     else
                                     {
-                                        throw new JsonLdError(JsonLdError.Error.UnknownFormat, options.format);
+                                        throw new JsonLdError(JsonLdError.Error.UnknownFormat, options.Format);
                                     }
                                 }
                                 string rval_1 = string.Empty;

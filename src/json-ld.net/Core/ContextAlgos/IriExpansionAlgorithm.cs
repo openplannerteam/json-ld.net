@@ -56,9 +56,9 @@ namespace JsonLD.Core.ContextAlgos
             // TODO Implement case 3
 
             // 4)
-            if (vocab && activeContext._termDefinitions.ContainsKey(valueToExpand))
+            if (vocab && activeContext.TermDefinitions.ContainsKey(valueToExpand))
             {
-                var td = activeContext._termDefinitions[valueToExpand];
+                var td = activeContext.TermDefinitions[valueToExpand];
 
                 // ReSharper disable once ConvertIfStatementToReturnStatement
                 if (td.Type == JTokenType.Null)
@@ -93,9 +93,9 @@ namespace JsonLD.Core.ContextAlgos
                 }
 
                 // 4.4)
-                if (activeContext._termDefinitions.ContainsKey(prefix))
+                if (activeContext.TermDefinitions.ContainsKey(prefix))
                 {
-                    return activeContext._termDefinitions[prefix]["@id"] + suffix;
+                    return activeContext.TermDefinitions[prefix]["@id"] + suffix;
                 }
 
                 // 4.5)

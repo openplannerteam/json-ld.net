@@ -29,8 +29,7 @@ namespace JsonLD.Core
             Context activeCtx = new Context(opts);
             activeCtx = activeCtx.Parse(context);
             // 8)
-            JToken compacted = new JsonLdApi(opts).Compact(activeCtx, null, expanded, opts.GetCompactArrays
-                ());
+            JToken compacted = new JsonLdApi(opts).Compact(activeCtx, null, expanded, opts.CompactArrays);
             // final step of Compaction Algorithm
             // TODO: SPEC: the result result is a NON EMPTY array,
             if (compacted is JArray)
@@ -103,17 +102,17 @@ namespace JsonLD.Core
                 // active context
                 // thus only set this as the base iri if it's not already set in
                 // options
-                if (opts.GetBase() == null)
+                if (opts.Base == null)
                 {
-                    opts.SetBase((string)input);
+                    opts.Base = ((string)input);
                 }
             }
             // 3)
             Context activeCtx = new Context(opts);
             // 4)
-            if (opts.GetExpandContext() != null)
+            if (opts.ExpandContext != null)
             {
-                JObject exCtx = opts.GetExpandContext();
+                JObject exCtx = opts.ExpandContext;
                 if (exCtx is JObject && ((IDictionary<string, JToken>)exCtx).ContainsKey("@context"
                     ))
                 {
@@ -231,8 +230,7 @@ namespace JsonLD.Core
                 Context activeCtx = new Context(opts);
                 activeCtx = activeCtx.Parse(context);
                 // TODO: only instantiate one jsonldapi
-                JToken compacted = new JsonLdApi(opts).Compact(activeCtx, null, flattened, opts.GetCompactArrays
-                    ());
+                JToken compacted = new JsonLdApi(opts).Compact(activeCtx, null, flattened, opts.CompactArrays);
                 if (!(compacted is JArray))
                 {
                     JArray tmp = new JArray();
@@ -328,18 +326,18 @@ namespace JsonLD.Core
         {
             // handle non specified serializer case
             IRDFParser parser = null;
-            if (options.format == null && dataset.Type == JTokenType.String)
+            if (options.Format == null && dataset.Type == JTokenType.String)
             {
                 // attempt to parse the input as nquads
-                options.format = "application/nquads";
+                options.Format = "application/nquads";
             }
-            if (rdfParsers.ContainsKey(options.format))
+            if (rdfParsers.ContainsKey(options.Format))
             {
-                parser = rdfParsers[options.format];
+                parser = rdfParsers[options.Format];
             }
             else
             {
-                throw new JsonLdError(JsonLdError.Error.UnknownFormat, options.format);
+                throw new JsonLdError(JsonLdError.Error.UnknownFormat, options.Format);
             }
             // convert from RDF
             return FromRDF(dataset, options, parser);
@@ -361,21 +359,21 @@ namespace JsonLD.Core
             // convert from RDF
             JToken rval = new JsonLdApi(options).FromRDF(dataset);
             // re-process using the generated context if outputForm is set
-            if (options.outputForm != null)
+            if (options.OutputForm != null)
             {
-                if ("expanded".Equals(options.outputForm))
+                if ("expanded".Equals(options.OutputForm))
                 {
                     return rval;
                 }
                 else
                 {
-                    if ("compacted".Equals(options.outputForm))
+                    if ("compacted".Equals(options.OutputForm))
                     {
                         return Compact(rval, dataset.GetContext(), options);
                     }
                     else
                     {
-                        if ("flattened".Equals(options.outputForm))
+                        if ("flattened".Equals(options.OutputForm))
                         {
                             return Flatten(rval, dataset.GetContext(), options);
                         }
@@ -412,7 +410,7 @@ namespace JsonLD.Core
             JsonLdApi api = new JsonLdApi(expandedInput, options);
             RDFDataset dataset = api.ToRDF();
             // generate namespaces from context
-            if (options.useNamespaces)
+            if (JsonLdOptions.UseNamespaces)
             {
                 JArray _input;
                 if (input is JArray)
@@ -436,21 +434,21 @@ namespace JsonLD.Core
             {
                 return callback.Call(dataset);
             }
-            if (options.format != null)
+            if (options.Format != null)
             {
-                if ("application/nquads".Equals(options.format))
+                if ("application/nquads".Equals(options.Format))
                 {
                     return new NQuadTripleCallback().Call(dataset);
                 }
                 else
                 {
-                    if ("text/turtle".Equals(options.format))
+                    if ("text/turtle".Equals(options.Format))
                     {
                         return new TurtleTripleCallback().Call(dataset);
                     }
                     else
                     {
-                        throw new JsonLdError(JsonLdError.Error.UnknownFormat, options.format);
+                        throw new JsonLdError(JsonLdError.Error.UnknownFormat, options.Format);
                     }
                 }
             }
@@ -490,7 +488,7 @@ namespace JsonLD.Core
         {
 #if !PORTABLE
             JsonLdOptions opts = options.Clone();
-            opts.format = null;
+            opts.Format = null;
             RDFDataset dataset = (RDFDataset)ToRDF(input, opts);
             return new JsonLdApi(options).Normalize(dataset);
 #else

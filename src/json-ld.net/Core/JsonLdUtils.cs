@@ -525,7 +525,7 @@ namespace JsonLD.Core
                 return iri;
             }
             // remove root from IRI and parse remainder
-            URL rel = URL.Parse(JsonLD.JavaCompat.Substring(iri, root.Length));
+            URL rel = URL.Parse(iri.Substring(root.Length));
             // remove path segments that match
             IList<string> baseSegments = _split(@base.normalizedPath, "/");
             IList<string> iriSegments = _split(rel.normalizedPath, "/");
@@ -636,7 +636,7 @@ namespace JsonLD.Core
                         JToken result = RemovePreserve(ctx, ((JObject)input)[prop], opts
                             );
                         string container = ctx.GetContainer(prop);
-                        if (opts.GetCompactArrays() && IsArray(result) && ((JArray)result).Count ==
+                        if (opts.CompactArrays && IsArray(result) && ((JArray)result).Count ==
                              1 && container == null)
                         {
                             result = ((JArray)result)[0];

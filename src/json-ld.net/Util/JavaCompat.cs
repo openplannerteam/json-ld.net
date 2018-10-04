@@ -15,10 +15,6 @@ namespace JsonLD
 {
     internal static class JavaCompat
     {
-        public static string Substring(string str, int from)
-        {
-            return str.Substring(from);
-        }
         public static string[] Split(this string str, string delims)
         {
             return str.Split(delims.ToCharArray());

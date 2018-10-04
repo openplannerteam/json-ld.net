@@ -130,28 +130,28 @@ namespace JsonLD.Test
 
                         if (optionDescription.TryGetValue("compactArrays", out value))
                         {
-                            options.SetCompactArrays((bool)value);
+                            options.CompactArrays = (bool)value;
                         }
                         if (optionDescription.TryGetValue("base", out value))
                         {
-                            options.SetBase((string)value);
+                            options.Base = (string)value;
                         }
                         if (optionDescription.TryGetValue("expandContext", out value))
                         {
                             newCase.context = GetJson(testcase["option"]["expandContext"]);
-                            options.SetExpandContext((JObject)newCase.context);
+                            options.ExpandContext = (JObject)newCase.context;
                         }
                         if (optionDescription.TryGetValue("produceGeneralizedRdf", out value))
                         {
-                            options.SetProduceGeneralizedRdf((bool)value);
+                            options.ProduceGeneralizedRdf = (bool) value;
                         }
                         if (optionDescription.TryGetValue("useNativeTypes", out value))
-                        {
-                            options.SetUseNativeTypes((bool)value);
+                        
+                            options.UseNativeTypes = (bool)value;
                         }
                         if (optionDescription.TryGetValue("useRdfType", out value))
                         {
-                            options.SetUseRdfType((bool)value);
+                            options.UseRdfType = (bool)value;
                         }
                     }
 
