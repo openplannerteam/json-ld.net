@@ -8,7 +8,7 @@ namespace JsonLD.Util
     {
         /// <summary>
         /// Used to make getting values from maps embedded in maps embedded in maps
-        /// easier TODO: roll out the loops for efficiency
+        /// easier
         /// </summary>
         /// <param name="map"></param>
         /// <param name="keys"></param>
@@ -87,7 +87,7 @@ namespace JsonLD.Util
         /// </returns>
         public new static bool Equals(object v1, object v2)
         {
-            return v1 == null ? v2 == null : v1.Equals(v2);
+            return v1?.Equals(v2) ?? v2 == null;
         }
     }
 }

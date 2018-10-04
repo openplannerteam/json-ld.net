@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using JsonLD.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -103,8 +102,7 @@ namespace JsonLD.Core
         }
 
         //[System.Serializable]
-        public abstract class Node : Dictionary<string,object>, IComparable<RDFDataset.Node
-            >
+        public abstract class Node : Dictionary<string,object>, IComparable<RDFDataset.Node>
         {
             public abstract bool IsLiteral();
 

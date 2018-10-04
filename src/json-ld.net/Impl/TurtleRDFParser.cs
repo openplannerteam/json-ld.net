@@ -718,14 +718,12 @@ namespace JsonLD.Impl
         {
             if (value.StartsWith("\"\"\"") || value.StartsWith("'''"))
             {
-                return JsonLD.JavaCompat.Substring(value, 3, value.Length - 3);
+                return value.Substring(3, value.Length - 3);
             }
-            else
+
+            if (value.StartsWith("\"") || value.StartsWith("'"))
             {
-                if (value.StartsWith("\"") || value.StartsWith("'"))
-                {
-                    return JsonLD.JavaCompat.Substring(value, 1, value.Length - 1);
-                }
+                return value.Substring(1, value.Length - 1);
             }
             return value;
         }

@@ -43,7 +43,9 @@ namespace JsonLD.Util
 
         public string authority = null;
 
-        private static Regex parser = new Regex("^(?:([^:\\/?#]+):)?(?:\\/\\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\\/?#]*)(?::(\\d*))?))?((((?:[^?#\\/]*\\/)*)([^?#]*))(?:\\?([^#]*))?(?:#(.*))?)");
+        private static Regex parser =
+            new Regex(
+                "^(?:([^:\\/?#]+):)?(?:\\/\\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\\/?#]*)(?::(\\d*))?))?((((?:[^?#\\/]*\\/)*)([^?#]*))(?:\\?([^#]*))?(?:#(.*))?)");
 
         // things not populated by the regex (NOTE: i don't think it matters if
         // these are null or "" to start with)
@@ -59,59 +61,73 @@ namespace JsonLD.Util
                 {
                     rval.protocol = matcher.Groups[1].Value;
                 }
+
                 if (matcher.Groups[2].Value != null)
                 {
                     rval.host = matcher.Groups[2].Value;
                 }
+
                 if (matcher.Groups[3].Value != null)
                 {
                     rval.auth = matcher.Groups[3].Value;
                 }
+
                 if (matcher.Groups[4].Value != null)
                 {
                     rval.user = matcher.Groups[4].Value;
                 }
+
                 if (matcher.Groups[5].Value != null)
                 {
                     rval.password = matcher.Groups[5].Value;
                 }
+
                 if (matcher.Groups[6].Value != null)
                 {
                     rval.hostname = matcher.Groups[6].Value;
                 }
+
                 if (matcher.Groups[7].Value != null)
                 {
                     rval.port = matcher.Groups[7].Value;
                 }
+
                 if (matcher.Groups[8].Value != null)
                 {
                     rval.relative = matcher.Groups[8].Value;
                 }
+
                 if (matcher.Groups[9].Value != null)
                 {
                     rval.path = matcher.Groups[9].Value;
                 }
+
                 if (matcher.Groups[10].Value != null)
                 {
                     rval.directory = matcher.Groups[10].Value;
                 }
+
                 if (matcher.Groups[11].Value != null)
                 {
                     rval.file = matcher.Groups[11].Value;
                 }
+
                 if (matcher.Groups[12].Value != null)
                 {
                     rval.query = matcher.Groups[12].Value;
                 }
+
                 if (matcher.Groups[13].Value != null)
                 {
                     rval.hash = matcher.Groups[13].Value;
                 }
+
                 // normalize to node.js API
                 if (!string.Empty.Equals(rval.host) && string.Empty.Equals(rval.path))
                 {
                     rval.path = "/";
                 }
+
                 rval.pathname = rval.path;
                 ParseAuthority(rval);
                 rval.normalizedPath = RemoveDotSegments(rval.pathname, !string.Empty.Equals(rval.authority));
@@ -119,16 +135,20 @@ namespace JsonLD.Util
                 {
                     rval.path += "?" + rval.query;
                 }
+
                 if (!string.Empty.Equals(rval.protocol))
                 {
                     rval.protocol += ":";
                 }
+
                 if (!string.Empty.Equals(rval.hash))
                 {
                     rval.hash = "#" + rval.hash;
                 }
+
                 return rval;
             }
+
             return rval;
         }
 
@@ -143,15 +163,17 @@ namespace JsonLD.Util
             {
                 rval = "/";
             }
+
             // RFC 3986 5.2.4 (reworked)
             IList<string> input = new List<string>(System.Linq.Enumerable.ToList(path.Split("/"
-                )));
+            )));
             if (path.EndsWith("/"))
             {
                 // javascript .split includes a blank entry if the string ends with
                 // the delimiter, java .split does not so we need to add it manually
                 input.Add(string.Empty);
             }
+
             IList<string> output = new List<string>();
             for (int i = 0; i < input.Count; i++)
             {
@@ -161,6 +183,7 @@ namespace JsonLD.Util
                     // input.remove(0);
                     continue;
                 }
+
                 if ("..".Equals(input[i]))
                 {
                     // input.remove(0);
@@ -177,10 +200,13 @@ namespace JsonLD.Util
                     {
                         output.Add("..");
                     }
+
                     continue;
                 }
+
                 output.Add(input[i]);
             }
+
             // input.remove(0);
             if (output.Count > 0)
             {
@@ -190,6 +216,7 @@ namespace JsonLD.Util
                     rval += "/" + output[i_1];
                 }
             }
+
             return rval;
         }
 
@@ -199,16 +226,18 @@ namespace JsonLD.Util
             {
                 return iri;
             }
+
             URL @base;
             if (baseobj.Type == JTokenType.String)
             {
-                @base = URL.Parse((string)baseobj);
+                @base = URL.Parse((string) baseobj);
             }
             else
             {
                 throw new Exception("Arrgggghhh!");
                 //@base = (URL)baseobj;
             }
+
             // establish base root
             string root = string.Empty;
             if (!string.Empty.Equals(@base.href))
@@ -223,11 +252,13 @@ namespace JsonLD.Util
                     root += "//";
                 }
             }
+
             // IRI not relative to base
             if (iri.IndexOf(root) != 0)
             {
                 return iri;
             }
+
             // remove root from IRI and parse remainder
             URL rel = URL.Parse(JsonLD.JavaCompat.Substring(iri, root.Length));
             // remove path segments that match
@@ -238,6 +269,7 @@ namespace JsonLD.Util
             {
                 baseSegments.Add(string.Empty);
             }
+
             IList<string> iriSegments = new List<string>(System.Linq.Enumerable.ToList(rel.normalizedPath
                 .Split("/")));
             iriSegments = iriSegments.Where(seg => seg != "").ToList();
@@ -245,21 +277,25 @@ namespace JsonLD.Util
             {
                 iriSegments.Add(string.Empty);
             }
+
             while (baseSegments.Count > 0 && iriSegments.Count > 0)
             {
                 if (!baseSegments[0].Equals(iriSegments[0]))
                 {
                     break;
                 }
+
                 if (baseSegments.Count > 0)
                 {
                     baseSegments.RemoveAt(0);
                 }
+
                 if (iriSegments.Count > 0)
                 {
                     iriSegments.RemoveAt(0);
                 }
             }
+
             // use '../' for each non-matching base segment
             string rval = string.Empty;
             if (baseSegments.Count > 0)
@@ -271,77 +307,90 @@ namespace JsonLD.Util
                 {
                     baseSegments.RemoveAt(baseSegments.Count - 1);
                 }
+
                 for (int i = 0; i < baseSegments.Count; ++i)
                 {
                     rval += "../";
                 }
             }
+
             // prepend remaining segments
             if (iriSegments.Count > 0)
             {
                 rval += iriSegments[0];
             }
+
             for (int i_1 = 1; i_1 < iriSegments.Count; i_1++)
             {
                 rval += "/" + iriSegments[i_1];
             }
+
             // add query and hash
             if (!string.Empty.Equals(rel.query))
             {
                 rval += "?" + rel.query;
             }
+
             if (!string.Empty.Equals(rel.hash))
             {
                 rval += rel.hash;
             }
+
             if (string.Empty.Equals(rval))
             {
                 rval = "./";
             }
+
             return rval;
         }
 
-        public static string Resolve(string baseUri, string pathToResolve)
+        public static Uri Resolve(string baseUri, string pathToResolve)
         {
             // TODO: some input will need to be normalized to perform the expected
             // result with java
             // TODO: we can do this without using java URI!
             if (baseUri == null)
             {
-                return pathToResolve;
+                return new Uri(pathToResolve);
             }
+
             if (pathToResolve == null || string.Empty.Equals(pathToResolve.Trim()))
             {
-                return baseUri;
+                return new Uri(baseUri);
             }
+
             try
             {
-                Uri uri = new Uri(baseUri);
+                var uri = new Uri(baseUri);
                 // query string parsing
                 if (pathToResolve.StartsWith("?"))
                 {
                     // drop fragment from uri if it has one
                     if (uri.Fragment != null)
                     {
-                        uri = new Uri(uri.Scheme + "://" + uri.Authority + uri.AbsolutePath);
+                        return new Uri(uri.Scheme + "://" + uri.Authority + uri.AbsolutePath + pathToResolve);
                     }
-                    // add query to the end manually (as URI.resolve does it wrong)
-                    return uri.ToString() + pathToResolve;
+                    else
+                    {
+                        // add query to the end manually (as URI.resolve does it wrong)
+                        return new Uri(uri.ToString() + pathToResolve);
+                    }
                 }
+
                 uri = new Uri(uri, pathToResolve);
                 // java doesn't discard unnecessary dot segments
-                string path = uri.AbsolutePath;
+                var path = uri.AbsolutePath;
                 if (path != null)
                 {
                     path = URL.RemoveDotSegments(uri.AbsolutePath, true);
                 }
+
                 // TODO(sblom): This line is wrong, but works.
-                return new Uri(uri.Scheme + "://" + uri.Authority + path + uri.Query + uri.Fragment).ToString
-                    ();
+                return new Uri(uri.Scheme + "://" + uri.Authority + path + uri.Query + uri.Fragment);
             }
             catch
             {
-                return pathToResolve;
+                return new Uri(pathToResolve);
             }
         }
 
@@ -352,7 +401,7 @@ namespace JsonLD.Util
         {
             // parse authority for unparsed relative network-path reference
             if (parsed.href.IndexOf(":") == -1 && parsed.href.IndexOf("//") == 0 && string.Empty
-                .Equals(parsed.host))
+                    .Equals(parsed.host))
             {
                 // must parse authority from pathname
                 parsed.pathname = JsonLD.JavaCompat.Substring(parsed.pathname, 2);
@@ -364,8 +413,8 @@ namespace JsonLD.Util
                 }
                 else
                 {
-                    parsed.authority = JsonLD.JavaCompat.Substring(parsed.pathname, 0, idx);
-                    parsed.pathname = JsonLD.JavaCompat.Substring(parsed.pathname, idx);
+                    parsed.authority = parsed.pathname.Substring(0, idx);
+                    parsed.pathname = parsed.pathname.Substring(idx);
                 }
             }
             else

@@ -4,38 +4,43 @@ using JsonLD.Core;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
 using System;
+using JsonLD.Core.ContextAlgos;
 
 namespace JsonLD.Core
 {
     public class JsonLdApi
     {
-        //private static readonly ILogger Log = LoggerFactory.GetLogger(typeof(JsonLDNet.Core.JsonLdApi));
-
         internal JsonLdOptions opts;
 
         internal JToken value = null;
 
         internal Context context = null;
 
-        public JsonLdApi()
+        private readonly  IDocumentLoader downloader;
+
+        public JsonLdApi(IDocumentLoader downloader)
         {
+            this.downloader = downloader;
             opts = new JsonLdOptions(string.Empty);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public JsonLdApi(JToken input, JsonLdOptions opts)
+        public JsonLdApi(JToken input, JsonLdOptions opts, IDocumentLoader downloader)
         {
+            this.downloader = downloader;
             Initialize(input, null, opts);
         }
 
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        public JsonLdApi(JToken input, JToken context, JsonLdOptions opts)
+        public JsonLdApi(JToken input, JToken context, JsonLdOptions opts, IDocumentLoader downloader)
         {
+            this.downloader = downloader;
             Initialize(input, null, opts);
         }
 
-        public JsonLdApi(JsonLdOptions opts)
+        public JsonLdApi(JsonLdOptions opts, IDocumentLoader downloader)
         {
+            this.downloader = downloader;
             if (opts == null)
             {
                 opts = new JsonLdOptions(string.Empty);
@@ -60,7 +65,8 @@ namespace JsonLD.Core
             this.context = new Context(opts);
             if (!context.IsNull())
             {
-                this.context = this.context.Parse(context);
+                var parser = new ParsingAlgorithm(this.context, this.downloader);
+                this.context = parser.Parse(context);
             }
         }
 
@@ -485,7 +491,8 @@ namespace JsonLD.Core
                     // 5)
                     if (elem.ContainsKey("@context"))
                     {
-                        activeCtx = activeCtx.Parse(elem["@context"]);
+                        var parser = new ParsingAlgorithm(activeCtx, this.downloader);
+                        activeCtx = parser.Parse(elem["@context"]);
                     }
                     // 6)
                     JObject result = new JObject();

@@ -13,14 +13,8 @@ using System.Security.Cryptography;
 
 namespace JsonLD
 {
-    //namespace System { public class SerializableAttribute: Attribute { } }
-
     internal static class JavaCompat
     {
-        public static string Substring(string str, int from, int to)
-        {
-            return str.Substring(from, to);
-        }
         public static string Substring(string str, int from)
         {
             return str.Substring(from);
@@ -99,14 +93,6 @@ namespace JsonLD
                 dest.Add(val);
             }
         }
-
-        //public static void AddAll<T>(ICollection<T> dest, ICollection source)
-        //{
-        //    foreach (var val in source)
-        //    {
-        //        dest.Add(source);
-        //    }
-        //}
 
         public static void AddAllObj(IList dest, ICollection source)
         {

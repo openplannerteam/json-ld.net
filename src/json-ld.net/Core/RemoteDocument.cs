@@ -18,14 +18,7 @@ namespace JsonLD.Core
 
         public virtual JToken Document
         {
-            get
-            {
-                return document;
-            }
-            set
-            {
-                this.document = value;
-            }
+            get => document;
         }
 
         public virtual string ContextUrl

@@ -50,89 +50,85 @@ namespace JsonLD.Core
             return keywords.Contains(keyString);
         }
 
-        public static bool DeepCompare(JToken v1, JToken v2, bool listOrderMatters)
+        
+        private static bool DeepCompare(JToken v1, JToken v2, bool listOrderMatters)
         {
             if (v1 == null)
             {
                 return v2 == null;
             }
-            else
+
+            if (v2 == null)
             {
-                if (v2 == null)
+                return v1 == null;
+            }
+
+            if (v1 is JObject && v2 is JObject)
+            {
+                JObject m1 = (JObject)v1;
+                JObject m2 = (JObject)v2;
+                if (m1.Count != m2.Count)
                 {
-                    return v1 == null;
+                    return false;
                 }
-                else
+                foreach (string key in m1.GetKeys())
                 {
-                    if (v1 is JObject && v2 is JObject)
+                    if (!((IDictionary<string,JToken>)m2).ContainsKey(key) ||
+                        !DeepCompare(m1[key], m2[key], listOrderMatters))
                     {
-                        JObject m1 = (JObject)v1;
-                        JObject m2 = (JObject)v2;
-                        if (m1.Count != m2.Count)
-                        {
-                            return false;
-                        }
-                        foreach (string key in m1.GetKeys())
-                        {
-                            if (!((IDictionary<string,JToken>)m2).ContainsKey(key) ||
-                                !DeepCompare(m1[key], m2[key], listOrderMatters))
-                            {
-                                return false;
-                            }
-                        }
-                        return true;
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            if (v1 is JArray && v2 is JArray)
+            {
+                JArray l1 = (JArray)v1;
+                JArray l2 = (JArray)v2;
+                var l1Count = l1.Count;
+                var l2Count = l2.Count;
+                if (l1Count != l2Count)
+                {
+                    return false;
+                }
+                // used to mark members of l2 that we have already matched to avoid
+                // matching the same item twice for lists that have duplicates
+                bool[] alreadyMatched = new bool[l2Count];
+                for (int i = 0; i < l1Count; i++)
+                {
+                    JToken o1 = l1[i];
+                    bool gotmatch = false;
+                    if (listOrderMatters)
+                    {
+                        gotmatch = DeepCompare(o1, l2[i], listOrderMatters);
                     }
                     else
                     {
-                        if (v1 is JArray && v2 is JArray)
+                        for (int j = 0; j < l2Count; j++)
                         {
-                            JArray l1 = (JArray)v1;
-                            JArray l2 = (JArray)v2;
-                            var l1Count = l1.Count;
-                            var l2Count = l2.Count;
-                            if (l1Count != l2Count)
+                            if (!alreadyMatched[j] && DeepCompare(o1, l2[j], listOrderMatters))
                             {
-                                return false;
+                                alreadyMatched[j] = true;
+                                gotmatch = true;
+                                break;
                             }
-                            // used to mark members of l2 that we have already matched to avoid
-                            // matching the same item twice for lists that have duplicates
-                            bool[] alreadyMatched = new bool[l2Count];
-                            for (int i = 0; i < l1Count; i++)
-                            {
-                                JToken o1 = l1[i];
-                                bool gotmatch = false;
-                                if (listOrderMatters)
-                                {
-                                    gotmatch = DeepCompare(o1, l2[i], listOrderMatters);
-                                }
-                                else
-                                {
-                                    for (int j = 0; j < l2Count; j++)
-                                    {
-                                        if (!alreadyMatched[j] && DeepCompare(o1, l2[j], listOrderMatters))
-                                        {
-                                            alreadyMatched[j] = true;
-                                            gotmatch = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (!gotmatch)
-                                {
-                                    return false;
-                                }
-                            }
-                            return true;
-                        }
-                        else
-                        {
-                            var v1String = v1.ToString().Replace("\r\n", "").Replace("\n", "").Replace("http:", "https:");
-                            var v2String = v2.ToString().Replace("\r\n", "").Replace("\n", "").Replace("http:", "https:");
-                            return v1String.Equals(v2String);
                         }
                     }
+                    if (!gotmatch)
+                    {
+                        return false;
+                    }
                 }
+                return true;
             }
+
+            
+            var v1String = v1.ToString().Replace("\r\n", "").Replace("\n", "").Replace("http:", "https:");
+            var v2String = v2.ToString().Replace("\r\n", "").Replace("\n", "").Replace("http:", "https:");
+            return v1String.Equals(v2String);
+            
+            
         }
 
         public static bool DeepCompare(JToken v1, JToken v2)
@@ -387,7 +383,7 @@ namespace JsonLD.Core
                 // append relative path to the end of the last directory from base
                 if (!string.Empty.Equals(rel.pathname))
                 {
-                    path = JsonLD.JavaCompat.Substring(path, 0, path.LastIndexOf("/") + 1);
+                    path = path.Substring(0, path.LastIndexOf("/", StringComparison.Ordinal) + 1);
                     if (path.Length > 0 && !path.EndsWith("/"))
                     {
                         path += "/";
@@ -702,14 +698,12 @@ namespace JsonLD.Core
             {
                 return -1;
             }
-            else
+
+            if (b.Length < a.Length)
             {
-                if (b.Length < a.Length)
-                {
-                    return 1;
-                }
+                return 1;
             }
-            return System.Math.Sign(string.CompareOrdinal(a, b));
+            return Math.Sign(string.CompareOrdinal(a, b));
         }
 
         /// <summary>Determines if the given value is a property of the given subject.</summary>
@@ -1092,10 +1086,9 @@ namespace JsonLD.Core
         /// <summary>Returns true if the given value is a JSON-LD value</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsValue(JToken v)
+        internal static bool IsValue(this JToken v)
         {
-            return (v is JObject && ((IDictionary<string, JToken>)v).ContainsKey("@value"
-                ));
+            return (v is JObject dict && dict.ContainsKey("@value"));
         }
 
         /// <summary>Returns true if the given value is a JSON-LD string</summary>
