@@ -497,7 +497,7 @@ namespace JsonLD.Core
         /// <summary>A helper class to sha1 hash all the strings in a collection</summary>
         /// <param name="nquads"></param>
         /// <returns></returns>
-        private static string Sha1hash(ICollection<string> nquads)
+        private static string Sha1hash(IEnumerable<string> nquads)
         {
 #if !PORTABLE
             try

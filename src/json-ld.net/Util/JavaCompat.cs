@@ -241,17 +241,17 @@ namespace JsonLD
     {
         private string _rx;
 
-        public Pattern(string rx): base(rx)
+        private Pattern(string rx): base(rx)
         {
             _rx = rx;
         }
 
-        static public Pattern Compile(string rx)
+        public static Pattern Compile(string rx)
         {
             return new Pattern(rx);
         }
 
-        static public string Quote(string str)
+        public static string Quote(string str)
         {
             return Regex.Escape(str);
         }

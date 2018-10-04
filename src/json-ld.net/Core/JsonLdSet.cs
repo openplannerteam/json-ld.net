@@ -20,14 +20,12 @@ namespace JsonLD.Core
                 throw new ArgumentNullException(nameof(token));
             }
 
-            if (token is JObject)
-            {
-                var id = token["@id"];
-
-                return id != null && _objects.Value.Add(id.Value<string>());
-            }
-
-            return false;
+            if (!(token is JObject)) return false;
+            
+            
+            
+            var id = token["@id"];
+            return id != null && _objects.Value.Add(id.Value<string>());
         }
     }
 }

@@ -3,7 +3,11 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
 {
-    /// <summary>http://json-ld.org/spec/latest/json-ld-api/#the-jsonldoptions-type</summary>
+    /// <summary>
+    /// An object which keeps track of a few variables. The variables state what options are used.
+    /// Absolutely nothing interesting is happening here.
+    /// Also see http://json-ld.org/spec/latest/json-ld-api/#the-jsonldoptions-type
+    /// </summary>
     public class JsonLdOptions
     {
         public IDocumentLoader documentLoader = null;

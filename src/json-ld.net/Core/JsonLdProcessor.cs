@@ -9,7 +9,6 @@ namespace JsonLD.Core
 {
     /// <summary>http://json-ld.org/spec/latest/json-ld-api/#the-jsonldprocessor-interface
     /// 	</summary>
-    /// <author>tristan</author>
     public class JsonLdProcessor
     {
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
