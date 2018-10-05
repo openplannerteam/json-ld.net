@@ -43,7 +43,7 @@ namespace JsonLD.Core.ContextAlgos
             {
                 var definitionToken = activeContext.TermDefinitions[term];
                 // 3.1)
-                if (definitionToken.Type == JTokenType.Null)
+                if (definitionToken.IsNull())
                 {
                     continue;
                 }

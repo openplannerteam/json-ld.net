@@ -441,7 +441,6 @@ namespace JsonLD.Core
                         }
                     }
                     string pat = Pattern.Quote(m.Group(0));
-                    string x = JsonLD.JavaCompat.ToHexString(uni[0]);
                     rval = rval.Replace(pat, uni);
                 }
             }

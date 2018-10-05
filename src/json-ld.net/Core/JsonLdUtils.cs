@@ -12,45 +12,6 @@ namespace JsonLD.Core
     {
         private const int MaxContextUrls = 10;
 
-        private static readonly IList<string> keywords = new[] { 
-            "@base",
-            "@context",
-            "@container",
-            "@default",
-            "@embed",
-            "@explicit",
-            "@graph",
-            "@id",
-            "@index",
-            "@language",
-            "@list",
-            "@omitDefault",
-            "@reverse",
-            "@preserve",
-            "@set",
-            "@type",
-            "@value",
-            "@vocab"
-        };
-
-        /// <summary>Returns whether or not the given value is a keyword (or a keyword alias).
-        /// 	</summary>
-        /// <remarks>Returns whether or not the given value is a keyword (or a keyword alias).
-        /// 	</remarks>
-        /// <param name="v">the value to check.</param>
-        /// <?></?>
-        /// <returns>true if the value is a keyword, false if not.</returns>
-        internal static bool IsKeyword(JToken key)
-        {
-            if (!IsString(key))
-            {
-                return false;
-            }
-            var keyString = (string)key;
-            return keywords.Contains(keyString);
-        }
-
-        
         private static bool DeepCompare(JToken v1, JToken v2, bool listOrderMatters)
         {
             if (v1 == null)
@@ -60,13 +21,11 @@ namespace JsonLD.Core
 
             if (v2 == null)
             {
-                return v1 == null;
+                return false;
             }
 
-            if (v1 is JObject && v2 is JObject)
+            if (v1 is JObject m1 && v2 is JObject m2)
             {
-                JObject m1 = (JObject)v1;
-                JObject m2 = (JObject)v2;
                 if (m1.Count != m2.Count)
                 {
                     return false;
@@ -202,11 +161,6 @@ namespace JsonLD.Core
             }
         }
 
-        public static bool IsAbsoluteIri(string value)
-        {
-            // TODO: this is a bit simplistic!
-            return value != null && value.Contains(":");
-        }
 
         /// <summary>Returns true if the given value is a subject with properties.</summary>
         /// <remarks>Returns true if the given value is a subject with properties.</remarks>
@@ -238,16 +192,6 @@ namespace JsonLD.Core
             // 2. It has a single key: @id.
             return (v is JObject && ((IDictionary<string, JToken>)v).Count == 1 && ((IDictionary
                 <string, JToken>)v).ContainsKey("@id"));
-        }
-
-        // TODO: fix this test
-        public static bool IsRelativeIri(string value)
-        {
-            if (!(IsKeyword(value) || IsAbsoluteIri(value)))
-            {
-                return true;
-            }
-            return false;
         }
 
         // //////////////////////////////////////////////////// OLD CODE BELOW
@@ -676,8 +620,8 @@ namespace JsonLD.Core
         /// <returns></returns>
         private static IList<string> _split(string @string, string delim)
         {
-            IList<string> rval = new List<string>(System.Linq.Enumerable.ToList(@string.Split
-                (delim)));
+            IList<string> rval = new List<string>(
+                System.Linq.Enumerable.ToList(@string.Split(delim.ToCharArray())));
             if (@string.EndsWith("/"))
             {
                 // javascript .split includes a blank entry if the string ends with
@@ -1058,46 +1002,6 @@ namespace JsonLD.Core
             return value.DeepClone();
         }
 
-        /// <summary>Returns true if the given value is a JSON-LD Array</summary>
-        /// <param name="v">the value to check.</param>
-        /// <returns></returns>
-        internal static bool IsArray(JToken v)
-        {
-            return (v is JArray);
-        }
 
-        /// <summary>Returns true if the given value is a JSON-LD List</summary>
-        /// <param name="v">the value to check.</param>
-        /// <returns></returns>
-        internal static bool IsList(JToken v)
-        {
-            return (v is JObject && ((IDictionary<string, JToken>)v).ContainsKey("@list")
-                );
-        }
-
-        /// <summary>Returns true if the given value is a JSON-LD Object</summary>
-        /// <param name="v">the value to check.</param>
-        /// <returns></returns>
-        internal static bool IsObject(JToken v)
-        {
-            return (v is JObject);
-        }
-
-        /// <summary>Returns true if the given value is a JSON-LD value</summary>
-        /// <param name="v">the value to check.</param>
-        /// <returns></returns>
-        internal static bool IsValue(this JToken v)
-        {
-            return (v is JObject dict && dict.ContainsKey("@value"));
-        }
-
-        /// <summary>Returns true if the given value is a JSON-LD string</summary>
-        /// <param name="v">the value to check.</param>
-        /// <returns></returns>
-        internal static bool IsString(JToken v)
-        {
-            // TODO: should this return true for arrays of strings as well?
-            return (v.Type == JTokenType.String);
-        }
     }
 }

@@ -3,17 +3,19 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
 {
-    //[System.Serializable]
+    /// <summary>
+    /// Contains fixed error strings.
+    /// Pretty boring.
+    /// </summary>
     public class JsonLdError : Exception
     {
         private Error _type;
         private readonly JObject details = null;
 
-        public JsonLdError(Error type, object detail) : base(detail == null
-            ? string.Empty
-            : detail.ToString())
+        public JsonLdError(Error type, object detail) :
+            base(detail == null? string.Empty
+              : detail.ToString())
         {
-            // TODO: pretty toString (e.g. print whole json objects)
             _type = type;
         }
 
@@ -22,7 +24,6 @@ namespace JsonLD.Core
             _type = type;
         }
 
-        //[System.Serializable]
         public sealed class Error
         {
             public static readonly Error InvalidVersion = new Error("Version not supported");

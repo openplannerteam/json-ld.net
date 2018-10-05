@@ -15,10 +15,6 @@ namespace JsonLD
 {
     internal static class JavaCompat
     {
-        public static string[] Split(this string str, string delims)
-        {
-            return str.Split(delims.ToCharArray());
-        }
         public static string ToHexString(this int i)
         {
             return Convert.ToString(i, 16);

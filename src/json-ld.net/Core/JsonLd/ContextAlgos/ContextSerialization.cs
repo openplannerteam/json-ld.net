@@ -25,10 +25,12 @@ namespace JsonLD.Core.ContextAlgos
             foreach (var term in activeContext.TermDefinitions.GetKeys())
             {
                 var definition = (JObject) activeContext.TermDefinitions[term];
-                if (definition["@language"].IsNull() && definition["@container"].IsNull() && definition
-                        ["@type"].IsNull() && (definition["@reverse"].IsNull() ||
-                                               (definition["@reverse"].Type == JTokenType.Boolean &&
-                                                (bool) definition["@reverse"] == false)))
+                if (definition["@language"].IsNull() 
+                    && definition["@container"].IsNull()
+                    && definition["@type"].IsNull() 
+                    && (definition["@reverse"].IsNull() 
+                    || (definition["@reverse"].IsBool()
+                        && !(bool) definition["@reverse"])))
                 {
                     var cid = activeContext.CompactIri((string) definition["@id"]);
                     ctx[term] = term.Equals(cid) ? (string) definition["@id"] : cid;
@@ -46,7 +48,7 @@ namespace JsonLD.Core.ContextAlgos
                     var typeMapping = (string) definition["@type"];
                     if (typeMapping != null)
                     {
-                        defn["@type"] = JsonLdUtils.IsKeyword(typeMapping)
+                        defn["@type"] = JsonLd.IsKeyword(typeMapping)
                             ? typeMapping
                             : activeContext.CompactIri(typeMapping
                                 , true);

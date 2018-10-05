@@ -65,8 +65,8 @@ namespace JsonLD.Core.ContextAlgos
 
             if (numberMembers == 1 
                && (
-                    valueValue.Type != JTokenType.String
-                    || !((IDictionary<string, JToken>) context).ContainsKey("@language") 
+                    !valueValue.IsString()
+                    || !context.IsDictContaining("@language")
                     || (context.GetTermDefinition(activeProperty).ContainsKey("@language") 
                         && languageMapping == null )))
             {

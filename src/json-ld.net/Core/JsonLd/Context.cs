@@ -142,7 +142,7 @@ namespace JsonLD.Core
                 return "@set";
             }
 
-            if (JsonLdUtils.IsKeyword(property))
+            if (JsonLd.IsKeyword(property))
             {
                 return property;
             }

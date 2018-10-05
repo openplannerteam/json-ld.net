@@ -24,22 +24,17 @@ namespace JsonLD.Core.ContextAlgos
         }
 
 
-        public Context Parse(JToken localContext)
-        {
-            return Parse(localContext, null);
-        }
-        
-        public Context Parse(JToken localContext, List<Uri> remoteContexts)
+        public Context ParseContext(JToken localContext, List<Uri> remoteContexts = null)
         {
             if (localContext is JArray arr)
             {
-                return Parse(arr, remoteContexts);
+                return ParseContext(arr, remoteContexts);
             }
 
-            return Parse(new JArray() {localContext}, remoteContexts);
+            return ParseContext(new JArray() {localContext}, remoteContexts);
         }
 
-        public Context Parse(JArray localContext, List<Uri> remoteContexts)
+        public Context ParseContext(JArray localContext, List<Uri> remoteContexts)
         {
             // 1. Initialize result to the result of cloning active context.
             // TODO: clone?
@@ -64,11 +59,10 @@ namespace JsonLD.Core.ContextAlgos
         /// This _could_ change properties of result or return a new context all together, throwing away the previous context.
         /// 
         /// </summary>
-        private Context HandleElement(Context result, List<Uri> remoteContexts,
-            JToken element)
+        private Context HandleElement(Context result, List<Uri> remoteContexts, JToken element)
         {
             // 3.1)
-            if (element.Type == JTokenType.Null)
+            if (element.IsNull())
             {
                 return new Context(_activeContext.Options);
             }
@@ -79,7 +73,7 @@ namespace JsonLD.Core.ContextAlgos
                 result = context1.Clone();
             }
 
-            if (element.Type == JTokenType.String)
+            if (element.IsString())
             {
                 return HandleStringElement(result, remoteContexts, element.ToString());
             }
@@ -88,12 +82,10 @@ namespace JsonLD.Core.ContextAlgos
             {
                 return HandleDictElement(result, remoteContexts, dict);
             }
-            else
-            {
-                // 3.3: The element is not a dictionary, not a string and not a previously loaded context
-                // Abort
-                throw new JsonLdError(JsonLdError.Error.InvalidLocalContext, element);
-            }
+
+            // 3.3: The element is not a dictionary, not a string and not a previously loaded context
+            // Abort
+            throw new JsonLdError(JsonLdError.Error.InvalidLocalContext, element);
         }
 
 
@@ -123,7 +115,7 @@ namespace JsonLD.Core.ContextAlgos
                 {
                     // If the dereferenced document has no top-level JSON object
                     // with an @context member
-                    return Parse(rContext["@context"], remoteContexts);
+                    return ParseContext(rContext["@context"], remoteContexts);
                 }
 
                 throw new JsonLdError(JsonLdError.Error.InvalidRemoteContext, element);
@@ -137,7 +129,7 @@ namespace JsonLD.Core.ContextAlgos
         /// <summary>
         /// Implements 3.4 and following of the algorithm
         /// </summary>
-        private static Context HandleDictElement(Context result, List<Uri> remoteContexts, JObject element)
+        private static Context HandleDictElement(Context result, ICollection<Uri> remoteContexts, JObject element)
         {
             // 3.4
             if (remoteContexts.IsEmpty() && element.ContainsKey("@base"))
@@ -150,21 +142,21 @@ namespace JsonLD.Core.ContextAlgos
                 }
                 else
                 {
-                    if (value.Type != JTokenType.String)
+                    if (!value.IsString())
                     {
                         throw new JsonLdError(JsonLdError.Error.InvalidBaseIri, "@base must be a string");
                     }
 
                     var baseVal = value.ToString();
 
-                    if (JsonLdUtils.IsAbsoluteIri(baseVal))
+                    if (baseVal.IsAbsoluteIri())
                     {
                         result["@base"] = baseVal;
                     }
                     else
                     {
                         var baseUri = (string) result["@base"];
-                        if (!JsonLdUtils.IsAbsoluteIri(baseUri))
+                        if (!baseUri.IsAbsoluteIri())
                         {
                             throw new JsonLdError(JsonLdError.Error.InvalidBaseIri, baseUri);
                         }
@@ -191,9 +183,9 @@ namespace JsonLD.Core.ContextAlgos
                 }
                 else
                 {
-                    if (value.Type == JTokenType.String)
+                    if (value.IsString())
                     {
-                        if (!JsonLdUtils.IsAbsoluteIri((string) value))
+                        if (!((string) value).IsAbsoluteIri())
                         {
                             throw new JsonLdError(JsonLdError.Error.InvalidVocabMapping,
                                 "@value must be an absolute IRI"
@@ -221,7 +213,7 @@ namespace JsonLD.Core.ContextAlgos
                 }
                 else
                 {
-                    if (value.Type == JTokenType.String)
+                    if (value.IsString())
                     {
                         result["@language"] = value.ToString().ToLower();
                     }

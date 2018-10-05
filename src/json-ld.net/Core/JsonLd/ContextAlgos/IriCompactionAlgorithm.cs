@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
 
@@ -75,7 +76,7 @@ namespace JsonLD.Core.ContextAlgos
             {
                 var termDefinitionToken = activeContext.TermDefinitions[term1];
                 // 5.1)
-                if (termDefinitionToken.Type == JTokenType.Null
+                if (termDefinitionToken.IsNull()
                     || termDefinitionToken.Equals(value)
                     || !iri.StartsWith(termDefinitionToken.ToString())
                     // TODO JSON-LD 1.1:  or the term definition does not contain the prefix flag having a value of true,
@@ -173,7 +174,7 @@ namespace JsonLD.Core.ContextAlgos
             else
             {
                 // 2.7)
-                if (value is JObject dict && dict.ContainsKey("@list"))
+                if (value.IsDictContaining("@list", out var dict))
                 {
                     // 2.7.1)
                     if (!dict.ContainsKey("@index"))
@@ -194,7 +195,7 @@ namespace JsonLD.Core.ContextAlgos
                         var itemLanguage = "@none";
                         var itemType = "@none";
                         // 2.7.4.2)
-                        if (item is JObject itemDict && itemDict.ContainsKey("@value"))
+                        if (item.IsDictContaining("@value", out var itemDict))
                         {
                             // 2.7.4.2.1)
                             if (itemDict.ContainsKey("@language"))
@@ -268,9 +269,9 @@ namespace JsonLD.Core.ContextAlgos
                 else if (value is JObject graph && graph.ContainsKey("@graph"))
                 {
                     // 2.8: Graph object handling
-                    // JSON-LD 1.1
+                    // TODO JSON-LD 1.1
 
-
+                    /*
                     containers.Add("@graph@index");
                     containers.Add("@graph@index@set");
 
@@ -281,10 +282,10 @@ namespace JsonLD.Core.ContextAlgos
                     containers.Add("@graph@set");
                     containers.Add("@set");
                     containers.Add("@index");
-                    containers.Add("@index@set");
+                    containers.Add("@index@set");*/
                 }
 
-                else if (value is JObject valueDict && valueDict.ContainsKey("@value"))
+                else if (value.IsDictContaining("@value", out var valueDict))
                 {
                     // 2.9)
                     if (valueDict.ContainsKey("@language")

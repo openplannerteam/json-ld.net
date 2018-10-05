@@ -25,7 +25,7 @@ namespace JsonLD.Core.ContextAlgos
             }
 
             defined[term] = false;
-            if (JsonLdUtils.IsKeyword(term))
+            if (JsonLd.IsKeyword(term))
             {
                 throw new JsonLdError(JsonLdError.Error.KeywordRedefinition, term);
             }
@@ -42,7 +42,7 @@ namespace JsonLD.Core.ContextAlgos
                 return;
             }
 
-            if (value.Type == JTokenType.String)
+            if (value.IsString())
             {
                value = new JObject {["@id"] = value};
             }
@@ -59,7 +59,7 @@ namespace JsonLD.Core.ContextAlgos
             // 10)
             if (val.ContainsKey("@type"))
             {
-                if (val["@type"].Type != JTokenType.String)
+                if (!val["@type"].IsString())
                 {
                     throw new JsonLdError(JsonLdError.Error.InvalidTypeMapping, val["@type"]);
                 }
@@ -80,8 +80,10 @@ namespace JsonLD.Core.ContextAlgos
                 }
 
                 // TODO: fix check for absoluteIri (blank nodes shouldn't count, at least not here!)
-                if ("@id".Equals(type) || "@vocab".Equals(type) || (!type.StartsWith("_:") && JsonLdUtils
-                                                                        .IsAbsoluteIri(type)))
+                if ("@id".Equals(type) 
+                    || "@vocab".Equals(type)
+                    || (!type.StartsWith("_:")
+                        && type.IsAbsoluteIri()))
                 {
                     definition["@type"] = type;
                 }
@@ -99,7 +101,7 @@ namespace JsonLD.Core.ContextAlgos
                     throw new JsonLdError(JsonLdError.Error.InvalidReverseProperty, val);
                 }
 
-                if (val["@reverse"].Type != JTokenType.String)
+                if (!val["@reverse"].IsString())
                 {
                     throw new JsonLdError(JsonLdError.Error.InvalidIriMapping,
                         "Expected String for @reverse value. got "
@@ -108,7 +110,7 @@ namespace JsonLD.Core.ContextAlgos
 
                 var reverse = activeContext.ExpandIri((string) val["@reverse"], false, true, localContext, defined
                 );
-                if (!JsonLdUtils.IsAbsoluteIri(reverse))
+                if (!reverse.IsAbsoluteIri())
                 {
                     throw new JsonLdError(JsonLdError.Error.InvalidIriMapping, "Non-absolute @reverse IRI: "
                                                                                + reverse);
@@ -118,7 +120,9 @@ namespace JsonLD.Core.ContextAlgos
                 if (val.ContainsKey("@container"))
                 {
                     var container = (string) val["@container"];
-                    if (container == null || "@set".Equals(container) || "@index".Equals(container))
+                    if (container == null 
+                        || "@set".Equals(container)
+                        || "@index".Equals(container))
                     {
                         definition["@container"] = container;
                     }
@@ -139,16 +143,16 @@ namespace JsonLD.Core.ContextAlgos
             // 12)
             definition["@reverse"] = false;
             // 13)
-            if (!val["@id"].IsNull() && !val["@id"].SafeCompare(term))
+            if (!val["@id"].IsNull() 
+                && !val["@id"].SafeCompare(term))
             {
-                if (val["@id"].Type != JTokenType.String)
+                if (!val["@id"].IsString())
                 {
-                    throw new JsonLdError(JsonLdError.Error.InvalidIriMapping, "expected value of @id to be a string"
-                    );
+                    throw new JsonLdError(JsonLdError.Error.InvalidIriMapping, "expected value of @id to be a string");
                 }
 
                 var res = activeContext.ExpandIri((string) val["@id"], false, true, localContext, defined);
-                if (JsonLdUtils.IsKeyword(res) || JsonLdUtils.IsAbsoluteIri(res))
+                if (JsonLd.IsKeyword(res) || res.IsAbsoluteIri())
                 {
                     if ("@context".Equals(res))
                     {
@@ -226,14 +230,13 @@ namespace JsonLD.Core.ContextAlgos
                 {
                     definition["@language"] = null;
                 }else
-                if (val["@language"].Type == JTokenType.String)
+                if (val["@language"].IsString())
                 {
                     definition["@language"] =  val["@language"].ToString().ToLower();
                 }
                 else
                 {
-                    throw new JsonLdError(JsonLdError.Error.InvalidLanguageMapping, "@language must be a string or null"
-                    );
+                    throw new JsonLdError(JsonLdError.Error.InvalidLanguageMapping, "@language must be a string or null");
                 }
             }
 

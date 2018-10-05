@@ -158,14 +158,14 @@ namespace JsonLD.Util
         /// <param name="hasAuthority">true if the URL has an authority, false if not.</param>
         public static string RemoveDotSegments(string path, bool hasAuthority)
         {
-            string rval = string.Empty;
-            if (path.IndexOf("/") == 0)
+            var rval = string.Empty;
+            if (path.IndexOf("/", StringComparison.Ordinal) == 0)
             {
                 rval = "/";
             }
 
             // RFC 3986 5.2.4 (reworked)
-            IList<string> input = new List<string>(System.Linq.Enumerable.ToList(path.Split("/"
+            IList<string> input = new List<string>(Enumerable.ToList(path.Split("/".ToCharArray()
             )));
             if (path.EndsWith("/"))
             {
@@ -262,16 +262,16 @@ namespace JsonLD.Util
             // remove root from IRI and parse remainder
             URL rel = Parse(iri.Substring(root.Length));
             // remove path segments that match
-            IList<string> baseSegments = new List<string>(System.Linq.Enumerable.ToList(@base
-                .normalizedPath.Split("/")));
+            IList<string> baseSegments = new List<string>(@base
+                .normalizedPath.Split("/".ToCharArray()).ToList());
             baseSegments = baseSegments.Where(seg => seg != "").ToList();
             if (@base.normalizedPath.EndsWith("/"))
             {
                 baseSegments.Add(string.Empty);
             }
 
-            IList<string> iriSegments = new List<string>(System.Linq.Enumerable.ToList(rel.normalizedPath
-                .Split("/")));
+            IList<string> iriSegments = new List<string>(rel.normalizedPath
+                .Split("/".ToCharArray()).ToList());
             iriSegments = iriSegments.Where(seg => seg != "").ToList();
             if (rel.normalizedPath.EndsWith("/"))
             {

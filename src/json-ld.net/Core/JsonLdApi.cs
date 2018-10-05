@@ -66,7 +66,7 @@ namespace JsonLD.Core
             if (!context.IsNull())
             {
                 var parser = new ParsingAlgorithm(this.context, this.downloader);
-                this.context = parser.Parse(context);
+                this.context = parser.ParseContext(context);
             }
         }
 
@@ -492,7 +492,7 @@ namespace JsonLD.Core
                     if (elem.ContainsKey("@context"))
                     {
                         var parser = new ParsingAlgorithm(activeCtx, this.downloader);
-                        activeCtx = parser.Parse(elem["@context"]);
+                        activeCtx = parser.ParseContext(elem["@context"]);
                     }
                     // 6)
                     JObject result = new JObject();
@@ -1049,22 +1049,12 @@ namespace JsonLD.Core
             }
         }
 
-        /// <exception cref="JsonLD.Core.JsonLdError"></exception>
         public virtual JToken Expand(Context activeCtx, JToken element)
         {
             return Expand(activeCtx, null, element);
         }
 
-        /// <summary>
-        /// _____ _ _ _ _ _ _ _ _ | ___| | __ _| |_| |_ ___ _ __ / \ | | __ _ ___ _
-        /// __(_) |_| |__ _ __ ___ | |_ | |/ _` | __| __/ _ \ '_ \ / _ \ | |/ _` |/ _
-        /// \| '__| | __| '_ \| '_ ` _ \ | _| | | (_| | |_| || __/ | | | / ___ \| |
-        /// (_| | (_) | | | | |_| | | | | | | | | |_| |_|\__,_|\__|\__\___|_| |_| /_/
-        /// \_\_|\__, |\___/|_| |_|\__|_| |_|_| |_| |_| |___/
-        /// </summary>
-        /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-        internal virtual void GenerateNodeMap(JToken element, JObject
-             nodeMap)
+        internal virtual void GenerateNodeMap(JToken element, JObject nodeMap)
         {
             GenerateNodeMap(element, nodeMap, "@default", null, null, null);
         }

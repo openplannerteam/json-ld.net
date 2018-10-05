@@ -162,19 +162,6 @@ namespace JsonLD.Impl
             }
 
             /// <exception cref="JsonLD.Core.JsonLdError"></exception>
-            private void AdvanceLineNumber()
-            {
-                Matcher match = TurtleRDFParser.Regex.NextEoln.Matcher(this.line);
-                if (match.Find())
-                {
-                    var split = match.Group(0).Split(string.Empty + TurtleRDFParser.Regex.Eoln);
-                    lineNumber += (split.Length - 1);
-                    linePosition += split[split.Length - 1].Length;
-                    line = line.Substring(match.Group(0).Length);
-                }
-            }
-
-            /// <exception cref="JsonLD.Core.JsonLdError"></exception>
             public virtual void AdvanceLinePosition(int len)
             {
                 if (len > 0)

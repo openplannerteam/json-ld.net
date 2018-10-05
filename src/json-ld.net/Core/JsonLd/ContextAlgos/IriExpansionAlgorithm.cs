@@ -37,7 +37,7 @@ namespace JsonLD.Core.ContextAlgos
                 return null;
             }
 
-            if (JsonLdUtils.IsKeyword(valueToExpand))
+            if (JsonLd.IsKeyword(valueToExpand))
             {
                 return valueToExpand;
             }
@@ -61,7 +61,7 @@ namespace JsonLD.Core.ContextAlgos
                 var td = activeContext.TermDefinitions[valueToExpand];
 
                 // ReSharper disable once ConvertIfStatementToReturnStatement
-                if (td.Type == JTokenType.Null)
+                if (td.IsNull())
                 {
                     return null;
                 }
@@ -105,7 +105,7 @@ namespace JsonLD.Core.ContextAlgos
             // 5)
             if (vocab && activeContext.ContainsKey("@vocab"))
             {
-                return activeContext["@vocab"].ToString() + valueToExpand;
+                return activeContext["@vocab"] + valueToExpand;
             }
 
             // 6)
@@ -114,7 +114,7 @@ namespace JsonLD.Core.ContextAlgos
                 return URL.Resolve(activeContext["@base"].ToString(), valueToExpand).ToString();
             }
 
-            if (context != null && JsonLdUtils.IsRelativeIri(valueToExpand))
+            if (context != null && valueToExpand.IsRelativeIri())
             {
                 throw new JsonLdError(JsonLdError.Error.InvalidIriMapping,
                     "not an absolute IRI: " + valueToExpand);

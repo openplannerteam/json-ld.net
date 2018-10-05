@@ -34,7 +34,7 @@ namespace JsonLD.Core.ContextAlgos
             }
 
             // 5)
-            if (value.Type != JTokenType.String)
+            if (!value.IsString())
             {
                 return rval;
             }
