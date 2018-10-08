@@ -30,7 +30,7 @@ namespace JsonLD.Core
                     JToken items = node[eachProperty];
                     if ("@type".Equals(eachProperty))
                     {
-                        eachProperty = JSONLDConsts.RdfType;
+                        eachProperty = JsonldConsts.RdfType;
                     }
                     else
                     {
@@ -97,13 +97,13 @@ namespace JsonLD.Core
         {
             JObject first = new JObject();
             first["type"] = "IRI";
-            first["value"] = JSONLDConsts.RdfFirst;
+            first["value"] = JsonldConsts.RdfFirst;
             JObject rest = new JObject();
             rest["type"] = "IRI";
-            rest["value"] = JSONLDConsts.RdfRest;
+            rest["value"] = JsonldConsts.RdfRest;
             JObject nil = new JObject();
             nil["type"] = "IRI";
-            nil["value"] = JSONLDConsts.RdfNil;
+            nil["value"] = JsonldConsts.RdfNil;
             foreach (JToken item in list)
             {
                 JObject blankNode = new JObject();
@@ -162,7 +162,7 @@ namespace JsonLD.Core
                     if (value.Type == JTokenType.Boolean)
                     {
                         @object["value"] = value.ToString();
-                        @object["datatype"] = datatype.IsNull() ? JSONLDConsts.XsdBoolean : datatype;
+                        @object["datatype"] = datatype.IsNull() ? JsonldConsts.XsdBoolean : datatype;
                     }
                     else
                     {
@@ -170,13 +170,13 @@ namespace JsonLD.Core
                         {
                             // canonical double representation
                             @object["value"] = string.Format("{0:0.0###############E0}", (double)value);
-                            @object["datatype"] = datatype.IsNull() ? JSONLDConsts.XsdDouble : datatype;
+                            @object["datatype"] = datatype.IsNull() ? JsonldConsts.XsdDouble : datatype;
                         }
                         else
                         {
                             DecimalFormat df = new DecimalFormat("0");
                             @object["value"] = df.Format((int)value);
-                            @object["datatype"] = datatype.IsNull() ? JSONLDConsts.XsdInteger : datatype;
+                            @object["datatype"] = datatype.IsNull() ? JsonldConsts.XsdInteger : datatype;
                         }
                     }
                 }
@@ -185,13 +185,13 @@ namespace JsonLD.Core
                     if (((IDictionary<string, JToken>)item).ContainsKey("@language"))
                     {
                         @object["value"] = value;
-                        @object["datatype"] = datatype.IsNull() ? JSONLDConsts.RdfLangstring : datatype;
+                        @object["datatype"] = datatype.IsNull() ? JsonldConsts.RdfLangstring : datatype;
                         @object["language"] = ((IDictionary<string, JToken>)item)["@language"];
                     }
                     else
                     {
                         @object["value"] = value;
-                        @object["datatype"] = datatype.IsNull() ? JSONLDConsts.XsdString : datatype;
+                        @object["datatype"] = datatype.IsNull() ? JsonldConsts.XsdString : datatype;
                     }
                 }
             }
@@ -300,13 +300,13 @@ namespace JsonLD.Core
                 {
                     string escaped = Escape(o.GetValue());
                     quad += "\"" + escaped + "\"";
-                    if (JSONLDConsts.RdfLangstring.Equals(o.GetDatatype()))
+                    if (JsonldConsts.RdfLangstring.Equals(o.GetDatatype()))
                     {
                         quad += "@" + o.GetLanguage();
                     }
                     else
                     {
-                        if (!JSONLDConsts.XsdString.Equals(o.GetDatatype()))
+                        if (!JsonldConsts.XsdString.Equals(o.GetDatatype()))
                         {
                             quad += "^^<" + Escape(o.GetDatatype()) + ">";
                         }
@@ -652,7 +652,7 @@ namespace JsonLD.Core
                     {
                         string language = Unescape(match.Group(8));
                         string datatype = match.Group(7) != null ? Unescape(match.Group(7)) : match.Group
-                            (8) != null ? JSONLDConsts.RdfLangstring : JSONLDConsts.XsdString;
+                            (8) != null ? JsonldConsts.RdfLangstring : JsonldConsts.XsdString;
                         AssertAbsoluteIri(datatype);
                         string unescaped = Unescape(match.Group(6));
                         @object = new RDFDataset.Literal(unescaped, datatype, language);

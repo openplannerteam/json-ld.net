@@ -557,7 +557,7 @@ namespace JsonLD.Core
 
             public Permutator(JArray list)
             {
-                this.list = (JArray)JsonLdUtils.Clone(list);
+                this.list = (JArray)list.DeepClone();
                 this.list.SortInPlace();
                 this.done = false;
                 this.left = new Dictionary<string, bool>();
@@ -583,7 +583,7 @@ namespace JsonLD.Core
             /// <returns>the next permutation.</returns>
             public virtual JArray Next()
             {
-                JArray rval = (JArray)JsonLdUtils.Clone(this.list);
+                JArray rval = (JArray)this.list.DeepClone();
                 // Calculate the next permutation using Steinhaus-Johnson-Trotter
                 // permutation algoritm
                 // get largest mobile element k

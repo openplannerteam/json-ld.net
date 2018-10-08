@@ -109,7 +109,7 @@ namespace JsonLD.Core.ContextAlgos
 
             try
             {
-                var remoteContext = _downloader.LoadDocument(uri).Document;
+                var remoteContext = _downloader.LoadDocument(uri);
                 if (remoteContext is JObject rContext &&
                     rContext.ContainsKey("@context"))
                 {

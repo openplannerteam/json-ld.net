@@ -6,6 +6,9 @@ using JsonLD.Core;
 using JsonLD.Util;
 using System.Net;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
 {
@@ -15,6 +18,29 @@ namespace JsonLD.Core
     /// </summary>
     public interface IDocumentLoader
     {
-        RemoteDocument LoadDocument(Uri uri);
+        JToken LoadDocument(Uri uri);
+    }
+
+    public class HttpDocumentDownloader : IDocumentLoader
+    {
+        private readonly HttpClient _client;
+
+        public HttpDocumentDownloader(HttpClient client)
+        {
+            _client = client;
+        }
+
+
+        public HttpDocumentDownloader() : this (new HttpClient())
+        {
+            
+        }
+
+        public JToken LoadDocument(Uri uri)
+        {
+            // Data as string
+            var data = _client.GetAsync(uri).Synced().Content.ReadAsStringAsync().Synced();
+            return JObject.Parse(data);
+        }
     }
 }

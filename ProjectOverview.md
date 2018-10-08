@@ -32,3 +32,11 @@ As the library is about JSON-LD, there is an class representing the JSON-LD data
 The second most important piece of the library is `Context.cs`. This class represents a context and offers all the necessary data to perform algorithms such as IRI (an IRI is a fancy upgrade of URI/URL) expansion and compactions, ...
 
 The algorithms themselves have their home in `ContextAlgos` - by seperating the algorithms and the data definition, one can quickly see what data is saved in the context without having to dig through 1000+ lines of algorithms.
+
+### JsonLd-Processor
+
+The Json-LD processor is the main entry point for the user. 
+
+
+
+

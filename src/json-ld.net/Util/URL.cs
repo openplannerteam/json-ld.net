@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JsonLD.Core;
 using JsonLD.Util;
 using Newtonsoft.Json.Linq;
+using Regex = System.Text.RegularExpressions.Regex;
 
 namespace JsonLD.Util
 {

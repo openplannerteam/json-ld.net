@@ -339,7 +339,7 @@ namespace JsonLD.Impl
                                 state.AdvanceLinePosition(1);
                                 state.Push();
                                 state.curSubject = bnode;
-                                state.curPredicate = JSONLDConsts.RdfFirst;
+                                state.curPredicate = JsonldConsts.RdfFirst;
                             }
                             else
                             {
@@ -385,7 +385,7 @@ namespace JsonLD.Impl
                                 else
                                 {
                                     // matched "a"
-                                    iri = JSONLDConsts.RdfType;
+                                    iri = JsonldConsts.RdfType;
                                 }
                             }
                         }
@@ -431,7 +431,7 @@ namespace JsonLD.Impl
                         if (state.line.StartsWith(")"))
                         {
                             state.AdvanceLinePosition(1);
-                            result.AddTriple(state.curSubject, state.curPredicate, JSONLDConsts.RdfNil);
+                            result.AddTriple(state.curSubject, state.curPredicate, JsonldConsts.RdfNil);
                         }
                         else
                         {
@@ -441,7 +441,7 @@ namespace JsonLD.Impl
                             result.AddTriple(state.curSubject, state.curPredicate, bnode);
                             state.Push();
                             state.curSubject = bnode;
-                            state.curPredicate = JSONLDConsts.RdfFirst;
+                            state.curPredicate = JsonldConsts.RdfFirst;
                             continue;
                         }
                     }
@@ -533,7 +533,7 @@ namespace JsonLD.Impl
                                     }
                                     else
                                     {
-                                        datatype = JSONLDConsts.RdfLangstring;
+                                        datatype = JsonldConsts.RdfLangstring;
                                     }
                                 }
                                 else
@@ -542,7 +542,7 @@ namespace JsonLD.Impl
                                     {
                                         // integer literal
                                         value = match.Group(12);
-                                        datatype = JSONLDConsts.XsdDouble;
+                                        datatype = JsonldConsts.XsdDouble;
                                     }
                                     else
                                     {
@@ -550,7 +550,7 @@ namespace JsonLD.Impl
                                         {
                                             // decimal literal
                                             value = match.Group(13);
-                                            datatype = JSONLDConsts.XsdDecimal;
+                                            datatype = JsonldConsts.XsdDecimal;
                                         }
                                         else
                                         {
@@ -558,7 +558,7 @@ namespace JsonLD.Impl
                                             {
                                                 // double literal
                                                 value = match.Group(14);
-                                                datatype = JSONLDConsts.XsdInteger;
+                                                datatype = JsonldConsts.XsdInteger;
                                             }
                                             else
                                             {
@@ -566,7 +566,7 @@ namespace JsonLD.Impl
                                                 {
                                                     // boolean literal
                                                     value = match.Group(15);
-                                                    datatype = JSONLDConsts.XsdBoolean;
+                                                    datatype = JsonldConsts.XsdBoolean;
                                                 }
                                             }
                                         }
@@ -587,12 +587,12 @@ namespace JsonLD.Impl
                 bool collectionClosed = false;
                 while (state.line.StartsWith(")"))
                 {
-                    if (!JSONLDConsts.RdfFirst.Equals(state.curPredicate))
+                    if (!JsonldConsts.RdfFirst.Equals(state.curPredicate))
                     {
                         throw new JsonLdError(JsonLdError.Error.ParseError, "Error while parsing Turtle; unexpected ). {line: "
                              + state.lineNumber + "position: " + state.linePosition + "}");
                     }
-                    result.AddTriple(state.curSubject, JSONLDConsts.RdfRest, JSONLDConsts.RdfNil);
+                    result.AddTriple(state.curSubject, JsonldConsts.RdfRest, JsonldConsts.RdfNil);
                     state.Pop();
                     state.AdvanceLinePosition(1);
                     collectionClosed = true;
@@ -652,10 +652,10 @@ namespace JsonLD.Impl
                     }
                 }
                 // if we're in a collection
-                if (JSONLDConsts.RdfFirst.Equals(state.curPredicate))
+                if (JsonldConsts.RdfFirst.Equals(state.curPredicate))
                 {
                     string bnode = state.namer.GetName();
-                    result.AddTriple(state.curSubject, JSONLDConsts.RdfRest, bnode);
+                    result.AddTriple(state.curSubject, JsonldConsts.RdfRest, bnode);
                     state.curSubject = bnode;
                     continue;
                 }

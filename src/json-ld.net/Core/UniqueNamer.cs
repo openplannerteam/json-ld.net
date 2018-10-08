@@ -32,7 +32,7 @@ namespace JsonLD.Core
         {
             JsonLD.Core.UniqueNamer copy = new JsonLD.Core.UniqueNamer(this.prefix);
             copy.counter = this.counter;
-            copy.existing = (JObject)JsonLdUtils.Clone(this.existing);
+            copy.existing = (JObject)this.existing.DeepClone();
             return copy;
         }
 

@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-
+using System.Threading.Tasks;
 #if !PORTABLE
 using System.Security.Cryptography;
 #endif
@@ -15,6 +15,11 @@ namespace JsonLD
 {
     internal static class JavaCompat
     {
+        public static T Synced<T>(this Task<T> t)
+        {
+            t.ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         public static string ToHexString(this int i)
         {
             return Convert.ToString(i, 16);
@@ -44,16 +49,13 @@ namespace JsonLD
             return ((IDictionary<string, JToken>)obj).ContainsKey(key);
         }
 
-        public static bool IsNull(this JToken token)
-        {
-            return token == null || token.Type == JTokenType.Null;
-        }
+
 
         public static bool SafeCompare<T>(this JToken token, T val)
         {
             try
             {
-                return token == null ? val == null : token.Value<T>().Equals(val);
+                return token?.Value<T>().Equals(val) ?? val == null;
             }
             catch
             {

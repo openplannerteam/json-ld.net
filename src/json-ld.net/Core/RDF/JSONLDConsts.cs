@@ -3,7 +3,7 @@ using JsonLD.Core;
 namespace JsonLD.Core
 {
     /// <summary>URI Constants used in the JSON-LD parser.</summary>
-    public sealed class JSONLDConsts
+    public static class JsonldConsts
     {
         public const string RdfSyntaxNs = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 

@@ -139,13 +139,13 @@ namespace JsonLD.Impl
             foreach (string subj in subjects)
             {
                 JObject preds = (JObject)ttl[subj];
-                if (preds != null && preds.ContainsKey(JSONLDConsts.RdfFirst))
+                if (preds != null && preds.ContainsKey(JsonldConsts.RdfFirst))
                 {
                     JArray col = new JArray();
                     collections[subj] = col;
                     while (true)
                     {
-                        JArray first = (JArray)JsonLD.Collections.Remove(preds, JSONLDConsts.RdfFirst);
+                        JArray first = (JArray)JsonLD.Collections.Remove(preds, JsonldConsts.RdfFirst);
                         JToken o = first[0];
                         col.Add(o);
                         // refs
@@ -154,9 +154,9 @@ namespace JsonLD.Impl
                             ((JArray)refs[(string)o]).Remove(first);
                             ((JArray)refs[(string)o]).Add(col);
                         }
-                        string next = (string)JsonLD.Collections.Remove(preds, JSONLDConsts.RdfRest)[0
+                        string next = (string)JsonLD.Collections.Remove(preds, JsonldConsts.RdfRest)[0
                             ];
-                        if (JSONLDConsts.RdfNil.Equals(next))
+                        if (JsonldConsts.RdfNil.Equals(next))
                         {
                             // end of this list
                             break;
@@ -244,11 +244,11 @@ namespace JsonLD.Impl
                         {
                             // TODO: this probably isn't an exclusive list of all the
                             // datatype literals that can be represented as native types
-                            if (!(JSONLDConsts.XsdDouble.Equals(dt) || JSONLDConsts.XsdInteger.Equals(dt) || 
-                                JSONLDConsts.XsdFloat.Equals(dt) || JSONLDConsts.XsdBoolean.Equals(dt)))
+                            if (!(JsonldConsts.XsdDouble.Equals(dt) || JsonldConsts.XsdInteger.Equals(dt) || 
+                                JsonldConsts.XsdFloat.Equals(dt) || JsonldConsts.XsdBoolean.Equals(dt)))
                             {
                                 obj = "\"" + obj + "\"";
-                                if (!JSONLDConsts.XsdString.Equals(dt))
+                                if (!JsonldConsts.XsdString.Equals(dt))
                                 {
                                     obj += "^^" + GetURI(dt);
                                 }

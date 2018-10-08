@@ -194,13 +194,13 @@ namespace JsonLD.Core
                     if (useNativeTypes)
                     {
                         // use native datatypes for certain xsd types
-                        if (JSONLDConsts.XsdString.Equals(type))
+                        if (JsonldConsts.XsdString.Equals(type))
                         {
                         }
                         else
                         {
                             // don't add xsd:string
-                            if (JSONLDConsts.XsdBoolean.Equals(type))
+                            if (JsonldConsts.XsdBoolean.Equals(type))
                             {
                                 if ("true".Equals(value))
                                 {
@@ -223,7 +223,7 @@ namespace JsonLD.Core
                                         double d = double.Parse(value, CultureInfo.InvariantCulture);
                                         if (!double.IsNaN(d) && !double.IsInfinity(d))
                                         {
-                                            if (JSONLDConsts.XsdInteger.Equals(type))
+                                            if (JsonldConsts.XsdInteger.Equals(type))
                                             {
                                                 int i = (int)d;
                                                 if (i.ToString().Equals(value))
@@ -233,7 +233,7 @@ namespace JsonLD.Core
                                             }
                                             else
                                             {
-                                                if (JSONLDConsts.XsdDouble.Equals(type))
+                                                if (JsonldConsts.XsdDouble.Equals(type))
                                                 {
                                                     rval["@value"] = d;
                                                 }
@@ -263,7 +263,7 @@ namespace JsonLD.Core
                     }
                     else
                     {
-                        if (!JSONLDConsts.XsdString.Equals(type))
+                        if (!JsonldConsts.XsdString.Equals(type))
                         {
                             rval["@type"] = type;
                         }
@@ -280,7 +280,7 @@ namespace JsonLD.Core
             {
                 this["type"] = "literal";
                 this["value"] = value;
-                this["datatype"] = datatype != null ? datatype : JSONLDConsts.XsdString;
+                this["datatype"] = datatype != null ? datatype : JsonldConsts.XsdString;
                 if (language != null)
                 {
                     this["language"] = language;
@@ -396,13 +396,13 @@ namespace JsonLD.Core
             }
         }
 
-        private static readonly RDFDataset.Node first = new RDFDataset.IRI(JSONLDConsts.RdfFirst
+        private static readonly RDFDataset.Node first = new RDFDataset.IRI(JsonldConsts.RdfFirst
             );
 
-        private static readonly RDFDataset.Node rest = new RDFDataset.IRI(JSONLDConsts.RdfRest
+        private static readonly RDFDataset.Node rest = new RDFDataset.IRI(JsonldConsts.RdfRest
             );
 
-        private static readonly RDFDataset.Node nil = new RDFDataset.IRI(JSONLDConsts.RdfNil
+        private static readonly RDFDataset.Node nil = new RDFDataset.IRI(JsonldConsts.RdfNil
             );
 
         private readonly IDictionary<string, string> context;
@@ -614,7 +614,7 @@ namespace JsonLD.Core
                     if ("@type".Equals(localProperty))
                     {
                         values = (JArray)node["@type"];
-                        localProperty = JSONLDConsts.RdfType;
+                        localProperty = JsonldConsts.RdfType;
                     }
                     else
                     {
@@ -733,12 +733,12 @@ namespace JsonLD.Core
                     if (value.Type == JTokenType.Boolean)
                     {
                         var serializeObject = JsonConvert.SerializeObject(value, Formatting.None).Trim('"');
-                        return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JSONLDConsts.XsdBoolean
+                        return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JsonldConsts.XsdBoolean
                              : (string)datatype, null);
                     }
                     else
                     {
-                        if (value.Type == JTokenType.Float || datatype.SafeCompare(JSONLDConsts.XsdDouble))
+                        if (value.Type == JTokenType.Float || datatype.SafeCompare(JsonldConsts.XsdDouble))
                         {
                             // Workaround for Newtonsoft.Json's refusal to cast a JTokenType.Integer to a double.
                             if (value.Type == JTokenType.Integer)
@@ -747,12 +747,12 @@ namespace JsonLD.Core
                                 value = new JValue((double)number);
                             }
                             // canonical double representation
-                            return new RDFDataset.Literal(string.Format(CultureInfo.InvariantCulture, "{0:0.0###############E0}", (double)value), datatype.IsNull() ? JSONLDConsts.XsdDouble
+                            return new RDFDataset.Literal(string.Format(CultureInfo.InvariantCulture, "{0:0.0###############E0}", (double)value), datatype.IsNull() ? JsonldConsts.XsdDouble
                                  : (string)datatype, null);
                         }
                         else
                         {
-                            return new RDFDataset.Literal(string.Format("{0:0}",value), datatype.IsNull() ? JSONLDConsts.XsdInteger
+                            return new RDFDataset.Literal(string.Format("{0:0}",value), datatype.IsNull() ? JsonldConsts.XsdInteger
                                  : (string)datatype, null);
                         }
                     }
@@ -761,13 +761,13 @@ namespace JsonLD.Core
                 {
                     if (((JObject)item).ContainsKey("@language"))
                     {
-                        return new RDFDataset.Literal((string)value, datatype.IsNull() ? JSONLDConsts.RdfLangstring
+                        return new RDFDataset.Literal((string)value, datatype.IsNull() ? JsonldConsts.RdfLangstring
                              : (string)datatype, (string)((JObject)item)["@language"]);
                     }
                     else
                     {
                         var serializeObject = JsonConvert.SerializeObject(value, Formatting.None).Trim('"');
-                        return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JSONLDConsts.XsdString
+                        return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JsonldConsts.XsdString
                              : (string)datatype, null);
                     }
                 }

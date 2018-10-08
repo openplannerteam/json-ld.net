@@ -4,17 +4,17 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core.ProcessorAlgos
 {
-    public class FlattenAlgo
+    internal class FlattenAlgo
     {
-        private readonly JsonLdOptions opts;
-        private readonly CompactionExpansionAlgo expander;
-        private readonly IDocumentLoader loader;
+        private readonly JsonLdOptions _opts;
+        private readonly CompactionExpansionAlgo _expander;
+        private readonly IDocumentLoader _loader;
 
         public FlattenAlgo(JsonLdOptions opts, CompactionExpansionAlgo expander,  IDocumentLoader loader)
         {
-            this.opts = opts;
-            this.expander = expander;
-            this.loader = loader;
+            this._opts = opts;
+            this._expander = expander;
+            this._loader = loader;
         }
 
         private JObject FlattenElement(string graphName, JObject graph, JObject defaultGraph)
@@ -59,7 +59,7 @@ namespace JsonLD.Core.ProcessorAlgos
         public JToken Flatten(JToken input, JToken context)
         {
             // 2-6) NOTE: these are all the same steps as in expand
-            var expanded = expander.Expand(input, opts);
+            var expanded = _expander.ExpandContext(input, _opts);
             // 7)
             if (context.IsDictContaining("@context"))
             {
@@ -74,7 +74,7 @@ namespace JsonLD.Core.ProcessorAlgos
                 ["@default"] = new JObject()
             };
             // 2)
-            new JsonLdApi(loader).GenerateNodeMap(expanded, nodeMap);
+            new JsonLdApi(_loader).GenerateNodeMap(expanded, nodeMap);
             // 3)
             var defaultGraph = (JObject) Collections.Remove(nodeMap, "@default");
             // 4)
@@ -105,18 +105,17 @@ namespace JsonLD.Core.ProcessorAlgos
             }
             
             
-            var activeCtx = new Context(opts);
-            var parser = new ParsingAlgorithm(activeCtx, loader);
+            var activeCtx = new Context(_opts);
+            var parser = new ParsingAlgorithm(activeCtx, _loader);
             activeCtx = parser.ParseContext(context);
-            
-            // TODO: only instantiate one jsonldapi
-            var compacted = new JsonLdApi(loader).Compact(activeCtx, null, flattened, opts.CompactArrays);
-            if (!(compacted is JArray))
-            {
-                var tmp = new JArray {compacted};
-                compacted = tmp;
-            }
 
+            
+            var compacted =
+                new JArray()
+                {
+                    _expander.CompactContext(flattened, activeCtx)
+                };
+      
             var rval = activeCtx.Serialize();
             rval[activeCtx.CompactIri("@graph")]
                 = compacted;

@@ -143,9 +143,28 @@ namespace JsonLD.Core
         /// <returns></returns>
         public static bool IsNull(this JToken v)
         {
-            return v.Type == JTokenType.Null;
+            return v == null ||  v.Type == JTokenType.Null;
         }
+        
 
+        /// <summary>Returns true if the given value is a blank node.</summary>
+        internal static bool IsBlankNode(JToken v)
+        {
+            // Note: A value is a blank node if all of these hold true:
+            // 1. It is an Object.
+            // 2. If it has an @id key its value begins with '_:'.
+            // 3. It has no keys OR is not a @value, @set, or @list.
+            if (!(v is JObject o)) return false;
+            
+            if (o.ContainsKey("@id"))
+            {
+                return ((string)o["@id"]).StartsWith("_:");
+            }
+
+            return o.Count == 0 || !(o.ContainsKey("@value") ||
+                                     o.ContainsKey("@set") || o.ContainsKey("@list"));
+        }
+        
         /// <summary>
         /// Gives the value associated with the key
         /// </summary>
