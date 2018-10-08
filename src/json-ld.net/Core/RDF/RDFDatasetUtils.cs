@@ -34,7 +34,7 @@ namespace JsonLD.Core
                     }
                     else
                     {
-                        if (JsonLdUtils.IsKeyword(eachProperty))
+                        if (JsonLd.IsKeyword(eachProperty))
                         {
                             continue;
                         }
@@ -58,7 +58,7 @@ namespace JsonLD.Core
                         predicate["type"] = "IRI";
                         predicate["value"] = eachProperty;
                         // convert @list to triples
-                        if (JsonLdUtils.IsList(item))
+                        if (item.IsDictContaining("@list"))
                         {
                             ListToRDF((JArray)((JObject)item)["@list"], namer, subject
                                 , predicate, rval);
@@ -150,7 +150,7 @@ namespace JsonLD.Core
         {
             JObject @object = new JObject();
             // convert value object to RDF
-            if (JsonLdUtils.IsValue(item))
+            if (item.IsDictContaining("@value"))
             {
                 @object["type"] = "literal";
                 JToken value = ((JObject)item)["@value"];
@@ -198,7 +198,7 @@ namespace JsonLD.Core
             else
             {
                 // convert string/node object to RDF
-                string id = JsonLdUtils.IsObject(item) ? (string)((JObject)item
+                string id = item.IsObject() ? (string)((JObject)item
                     )["@id"] : (string)item;
                 if (id.IndexOf("_:") == 0)
                 {

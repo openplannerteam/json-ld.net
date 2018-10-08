@@ -27,12 +27,7 @@ namespace JsonLD.Core
             this.opts = opts ?? new JsonLdOptions(string.Empty);
         }
 
-
-        public virtual JToken Expand(Context activeCtx, JToken element)
-        {
-            return Expand(activeCtx, null, element);
-        }
-
+      
         internal virtual void GenerateNodeMap(JToken element, JObject nodeMap)
         {
             GenerateNodeMap(element, nodeMap, "@default", null, null, null);
@@ -376,6 +371,7 @@ namespace JsonLD.Core
             }
 
             if (this.opts.Explicit != null)
+            {
                 state.@explicit = opts.Explicit.Value;
             }
 
@@ -387,9 +383,12 @@ namespace JsonLD.Core
             // use tree map so keys are sotred by default
             // XXX BUG BUG BUG XXX (sblom) Figure out where this needs to be sorted and use extension methods to return sorted enumerators or something!
             JObject nodes = new JObject();
+
             GenerateNodeMap(input, nodes);
             this.nodeMap = (JObject) nodes["@default"];
+
             JArray framed = new JArray();
+
             // NOTE: frame validation is done by the function not allowing anything
             // other than list to me passed
             Frame(state, this.nodeMap, (frame != null && frame.Count > 0 ? (JObject) frame[0] : new JObject()), framed,
@@ -411,9 +410,11 @@ namespace JsonLD.Core
         {
             // filter out subjects that match the frame
             JObject matches = FilterNodes(state, nodes, frame);
+
             // get flags for current frame
             bool embedOn = GetFrameFlag(frame, "@embed", state.embed);
             bool explicitOn = GetFrameFlag(frame, "@explicit", state.@explicit);
+
             // add matches to output
             JArray ids = new JArray(matches.GetKeys());
             ids.SortInPlace();
@@ -486,7 +487,7 @@ namespace JsonLD.Core
                     foreach (string prop in props)
                     {
                         // copy keywords to output
-                        if (JsonLdUtils.IsKeyword(prop))
+                        if (JsonLd.IsKeyword(prop))
                         {
                             output[prop] = element[prop].DeepClone();
                             continue;
@@ -567,7 +568,7 @@ namespace JsonLD.Core
                     foreach (string prop_1 in props)
                     {
                         // skip keywords
-                        if (JsonLdUtils.IsKeyword(prop_1))
+                        if (JsonLd.IsKeyword(prop_1))
                         {
                             continue;
                         }
@@ -642,18 +643,18 @@ namespace JsonLD.Core
         /// <param name="id">the @id of the embed to remove.</param>
         private static void RemoveEmbed(JsonLdApi.FramingContext state, string id)
         {
-            // get existing embed
+// get existing embed
             IDictionary<string, JsonLdApi.EmbedNode> embeds = state.embeds;
             JsonLdApi.EmbedNode embed = embeds[id];
             JToken parent = embed.parent;
             string property = embed.property;
-            // create reference to replace embed
+// create reference to replace embed
             JObject node = new JObject();
             node["@id"] = id;
-            // remove existing embed
+// remove existing embed
             if (JsonLdUtils.IsNode(parent))
             {
-                // replace subject with reference
+// replace subject with reference
                 JArray newvals = new JArray();
                 JArray oldvals = (JArray) ((JObject) parent)[property
                 ];
@@ -672,14 +673,14 @@ namespace JsonLD.Core
                 ((JObject) parent)[property] = newvals;
             }
 
-            // recursively remove dependent dangling embeds
+// recursively remove dependent dangling embeds
             RemoveDependents(embeds, id);
         }
 
         private static void RemoveDependents(IDictionary<string, JsonLdApi.EmbedNode> embeds
             , string id)
         {
-            // get embed keys as a separate array to enable deleting keys in map
+// get embed keys as a separate array to enable deleting keys in map
             List<string> embedsKeys = new List<string>(embeds.Keys);
             foreach (string id_dep in embedsKeys)
             {
@@ -731,7 +732,6 @@ namespace JsonLD.Core
                     throw new JsonLdError(JsonLdError.Error.SyntaxError, "frame @type must be an array");
                 }
 
-
                 var nodeTypes = node["@type"];
                 if (nodeTypes.IsNull())
                 {
@@ -765,7 +765,7 @@ namespace JsonLD.Core
 
             foreach (string key in frame.GetKeys())
             {
-                if ("@id".Equals(key) || !JsonLdUtils.IsKeyword(key) && !(node.ContainsKey(key)))
+                if ("@id".Equals(key) || !JsonLd.IsKeyword(key) && !(node.ContainsKey(key)))
                 {
                     return false;
                 }
@@ -814,12 +814,11 @@ namespace JsonLD.Core
         /// <param name="output">the output.</param>
         private void EmbedValues(JsonLdApi.FramingContext state, JObject element, string property, JToken output)
         {
-            // embed subject properties in output
+// embed subject properties in output
             JArray objects = (JArray) element[property];
             foreach (JToken o in objects)
             {
                 var eachObj = o;
-
                 if (eachObj is JObject && ((JObject) eachObj).ContainsKey("@list"))
                 {
                     JObject list = new JObject {{"@list", new JArray()}};
@@ -834,19 +833,19 @@ namespace JsonLD.Core
 
                     EmbedValues(state, (JObject) eachObj, "@list", list["@list"]);
                 }
-                // handle subject reference
+// handle subject reference
                 else if (JsonLdUtils.IsNodeReference(eachObj))
                 {
                     string sid = (string) ((JObject) eachObj)["@id"];
-                    // embed full subject if isn't already embedded
+// embed full subject if isn't already embedded
                     if (!state.embeds.ContainsKey(sid))
                     {
-                        // add embed
+// add embed
                         JsonLdApi.EmbedNode embed = new JsonLdApi.EmbedNode(this);
                         embed.parent = output;
                         embed.property = property;
                         state.embeds[sid] = embed;
-                        // recurse into subject
+// recurse into subject
                         eachObj = new JObject();
                         JObject s = (JObject) this.nodeMap[sid];
                         if (s == null)
@@ -857,8 +856,8 @@ namespace JsonLD.Core
 
                         foreach (string prop in s.GetKeys())
                         {
-                            // copy keywords
-                            if (JsonLdUtils.IsKeyword(prop))
+// copy keywords
+                            if (JsonLd.IsKeyword(prop))
                             {
                                 ((JObject) eachObj)[prop] = s[prop].DeepClone();
                                 continue;
@@ -872,7 +871,7 @@ namespace JsonLD.Core
                 }
                 else
                 {
-                    // copy non-subject value
+// copy non-subject value
                     AddFrameOutput(state, output, property, eachObj.DeepClone());
                 }
             }
@@ -892,15 +891,12 @@ namespace JsonLD.Core
             }
 
             public JsonLdApi.NodeMapNode node = null;
-
             public string property = null;
-
             public JObject value = null;
-
             private readonly JsonLdApi _enclosing;
         }
 
-        //[System.Serializable]
+//[System.Serializable]
         private class NodeMapNode : JObject
         {
             public IList<UsagesNode> usages = new List<UsagesNode>();
@@ -911,7 +907,7 @@ namespace JsonLD.Core
                 this["@id"] = id;
             }
 
-            // helper fucntion for 4.3.3
+// helper fucntion for 4.3.3
             public virtual bool IsWellFormedListNode()
             {
                 if (this.usages.Count != 1)
@@ -950,7 +946,7 @@ namespace JsonLD.Core
                     }
                 }
 
-                // TODO: SPEC: 4.3.3 has no mention of @id
+// TODO: SPEC: 4.3.3 has no mention of @id
                 if (this.ContainsKey("@id"))
                 {
                     keys++;
@@ -964,7 +960,7 @@ namespace JsonLD.Core
                 return true;
             }
 
-            // return this node without the usages variable
+// return this node without the usages variable
             public virtual JObject Serialize()
             {
                 return new JObject(this);
@@ -982,16 +978,16 @@ namespace JsonLD.Core
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
         public virtual JArray FromRDF(RDFDataset dataset)
         {
-            // 1)
+// 1)
             JObject defaultGraph = new JObject();
-            // 2)
+// 2)
             JObject graphMap = new JObject();
             graphMap["@default"] = defaultGraph;
-            // 3/3.1)
+// 3/3.1)
             foreach (string name in dataset.GraphNames())
             {
                 IList<RDFDataset.Quad> graph = dataset.GetQuads(name);
-                // 3.2+3.4)
+// 3.2+3.4)
                 JObject nodeMap;
                 if (!graphMap.ContainsKey(name))
                 {
@@ -1003,19 +999,19 @@ namespace JsonLD.Core
                     nodeMap = (JObject) graphMap[name];
                 }
 
-                // 3.3)
+// 3.3)
                 if (!"@default".Equals(name) && !Obj.Contains(defaultGraph, name))
                 {
                     defaultGraph[name] = new JsonLdApi.NodeMapNode(this, name);
                 }
 
-                // 3.5)
+// 3.5)
                 foreach (RDFDataset.Quad triple in graph)
                 {
                     string subject = triple.GetSubject().GetValue();
                     string predicate = triple.GetPredicate().GetValue();
                     RDFDataset.Node @object = triple.GetObject();
-                    // 3.5.1+3.5.2)
+// 3.5.1+3.5.2)
                     JsonLdApi.NodeMapNode node;
                     if (!nodeMap.ContainsKey(subject))
                     {
@@ -1027,14 +1023,14 @@ namespace JsonLD.Core
                         node = (NodeMapNode) nodeMap[subject];
                     }
 
-                    // 3.5.3)
+// 3.5.3)
                     if ((@object.IsIRI() || @object.IsBlankNode()) && !nodeMap.ContainsKey(@object.GetValue
                             ()))
                     {
                         nodeMap[@object.GetValue()] = new JsonLdApi.NodeMapNode(this, @object.GetValue());
                     }
 
-                    // 3.5.4)
+// 3.5.4)
                     if (JsonldConsts.RdfType.Equals(predicate) && (@object.IsIRI() || @object.IsBlankNode
                                                                        ()) && !opts.UseRdfType)
                     {
@@ -1042,14 +1038,14 @@ namespace JsonLD.Core
                         continue;
                     }
 
-                    // 3.5.5)
+// 3.5.5)
                     JObject value = @object.ToObject(opts.UseNativeTypes);
-                    // 3.5.6+7)
+// 3.5.6+7)
                     JsonLdUtils.MergeValue(node, predicate, value);
-                    // 3.5.8)
+// 3.5.8)
                     if (@object.IsBlankNode() || @object.IsIRI())
                     {
-                        // 3.5.8.1-3)
+// 3.5.8.1-3)
                         ((NodeMapNode) nodeMap[@object.GetValue()]).usages.Add(new JsonLdApi.UsagesNode(this, node,
                             predicate
                             , value));
@@ -1057,74 +1053,74 @@ namespace JsonLD.Core
                 }
             }
 
-            // 4)
+// 4)
             foreach (var name_1 in graphMap.GetKeys())
             {
                 var graph = (JObject) graphMap[name_1];
-                // 4.1)
+// 4.1)
                 if (!graph.ContainsKey(JsonldConsts.RdfNil))
                 {
                     continue;
                 }
 
-                // 4.2)
+// 4.2)
                 var nil = (NodeMapNode) graph[JsonldConsts.RdfNil];
-                // 4.3)
+// 4.3)
                 foreach (var usage in nil.usages)
                 {
-                    // 4.3.1)
+// 4.3.1)
                     var node = usage.node;
                     var property = usage.property;
                     var head = usage.value;
-                    // 4.3.2)
+// 4.3.2)
                     var list = new JArray();
                     var listNodes = new JArray();
-                    // 4.3.3)
+// 4.3.3)
                     while (JsonldConsts.RdfRest.Equals(property) && node.IsWellFormedListNode())
                     {
-                        // 4.3.3.1)
+// 4.3.3.1)
                         list.Add(((JArray) node[JsonldConsts.RdfFirst])[0]);
-                        // 4.3.3.2)
+// 4.3.3.2)
                         listNodes.Add((string) node["@id"]);
-                        // 4.3.3.3)
+// 4.3.3.3)
                         var nodeUsage = node.usages[0];
-                        // 4.3.3.4)
+// 4.3.3.4)
                         node = nodeUsage.node;
                         property = nodeUsage.property;
                         head = nodeUsage.value;
-                        // 4.3.3.5)
-                        if (!global::JsonLd.IsBlankNode(node))
+// 4.3.3.5)
+                        if (!JsonLd.IsBlankNode(node))
                         {
                             break;
                         }
                     }
 
-                    // 4.3.4)
+// 4.3.4)
                     if (JsonldConsts.RdfFirst.Equals(property))
                     {
-                        // 4.3.4.1)
+// 4.3.4.1)
                         if (JsonldConsts.RdfNil.Equals(node["@id"]))
                         {
                             continue;
                         }
 
-                        // 4.3.4.3)
+// 4.3.4.3)
                         string headId = (string) head["@id"];
-                        // 4.3.4.4-5)
+// 4.3.4.4-5)
                         head = (JObject) ((JArray) graph[headId][JsonldConsts.RdfRest
                         ])[0];
-                        // 4.3.4.6)
+// 4.3.4.6)
                         list.RemoveAt(list.Count - 1);
                         listNodes.RemoveAt(listNodes.Count - 1);
                     }
 
-                    // 4.3.5)
+// 4.3.5)
                     JsonLD.Collections.Remove(head, "@id");
-                    // 4.3.6)
+// 4.3.6)
                     JsonLD.Collections.Reverse(list);
-                    // 4.3.7)
+// 4.3.7)
                     head["@list"] = list;
-                    // 4.3.8)
+// 4.3.8)
                     foreach (string nodeId in listNodes)
                     {
                         JsonLD.Collections.Remove(graph, nodeId);
@@ -1132,20 +1128,20 @@ namespace JsonLD.Core
                 }
             }
 
-            // 5)
+// 5)
             var result = new JArray();
-            // 6)
+// 6)
             var ids = new JArray(defaultGraph.GetKeys());
             ids.SortInPlace();
             foreach (string subject_1 in ids)
             {
                 var node = (NodeMapNode) defaultGraph[subject_1];
-                // 6.1)
+// 6.1)
                 if (graphMap.ContainsKey(subject_1))
                 {
-                    // 6.1.1)
+// 6.1.1)
                     node["@graph"] = new JArray();
-                    // 6.1.2)
+// 6.1.2)
                     var keys = new JArray(graphMap[subject_1].GetKeys());
                     keys.SortInPlace();
                     foreach (string s in keys)
@@ -1160,7 +1156,7 @@ namespace JsonLD.Core
                     }
                 }
 
-                // 6.2)
+// 6.2)
                 if (node.Count == 1 && node.ContainsKey("@id"))
                 {
                     continue;
@@ -1181,16 +1177,16 @@ namespace JsonLD.Core
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
         public virtual RDFDataset ToRDF()
         {
-            // TODO: make the default generateNodeMap call (i.e. without a
-            // graphName) create and return the nodeMap
+// TODO: make the default generateNodeMap call (i.e. without a
+// graphName) create and return the nodeMap
             JObject nodeMap = new JObject();
             nodeMap["@default"] = new JObject();
             GenerateNodeMap(this.value, nodeMap);
             RDFDataset dataset = new RDFDataset(this);
             foreach (string graphName in nodeMap.GetKeys())
             {
-                // 4.1)
-                if (JsonLdUtils.IsRelativeIri(graphName))
+// 4.1)
+                if (graphName.IsRelativeIri())
                 {
                     continue;
                 }
@@ -1203,7 +1199,6 @@ namespace JsonLD.Core
             return dataset;
         }
 
-
         /// <summary>Performs RDF normalization on the given JSON-LD input.</summary>
         /// <remarks>Performs RDF normalization on the given JSON-LD input.</remarks>
         /// <param name="input">the expanded JSON-LD object to normalize.</param>
@@ -1213,7 +1208,7 @@ namespace JsonLD.Core
         /// <exception cref="JsonLD.Core.JsonLdError"></exception>
         public virtual object Normalize(RDFDataset dataset)
         {
-            // create quads and map bnodes to their associated quads
+// create quads and map bnodes to their associated quads
             IList<RDFDataset.Quad> quads = new List<RDFDataset.Quad>();
             IDictionary<string, IDictionary<string, object>> bnodes =
                 new Dictionary<string, IDictionary<string, object>>();
@@ -1265,7 +1260,7 @@ namespace JsonLD.Core
                 }
             }
 
-            // mapping complete, start canonical naming
+// mapping complete, start canonical naming
             NormalizeUtils normalizeUtils = new NormalizeUtils(quads, bnodes, new UniqueNamer
                 ("_:c14n"), opts);
             return normalizeUtils.HashBlankNodes(bnodes.Keys);

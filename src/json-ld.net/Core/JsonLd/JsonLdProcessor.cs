@@ -1,5 +1,7 @@
 using System;
+using JsonLD.Core.ContextAlgos;
 using JsonLD.Core.ProcessorAlgos;
+using JsonLD.Util;
 using Newtonsoft.Json.Linq;
 
 namespace JsonLD.Core
@@ -20,17 +22,18 @@ namespace JsonLD.Core
 
         private readonly CompactionExpansionAlgo compactionExpansion;
         private readonly FlattenAlgo flatten;
-        
-        
-        public JsonLdProcessor(IDocumentLoader loader) : this(loader, null)
+
+        public JsonLdProcessor(IDocumentLoader loader, Uri basePath) :
+            this(loader, new JsonLdOptions(basePath.Scheme + "://" + basePath.Host))
         {
         }
-        
+
+
         public JsonLdProcessor(IDocumentLoader loader, JsonLdOptions options)
         {
             this.loader = loader;
 
-            this.options = options ?? new JsonLdOptions("");
+            this.options = options;
 
             compactionExpansion = new CompactionExpansionAlgo(loader, this.options);
             flatten = new FlattenAlgo(options, compactionExpansion, loader);
@@ -41,29 +44,39 @@ namespace JsonLD.Core
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public JToken Load(Uri uri)
+        public JToken LoadExpanded(Uri uri)
         {
             var raw = loader.LoadDocument(uri);
-            return Expand(null, raw);
+            var ctx = new Context(options);
+            return Expand(ctx, raw);
         }
-        
-        /// <summary>
-        /// Compacts everything
-        /// </summary>
-        /// <param name="activeCtx"></param>
-        /// <param name="activeProperty"></param>
-        /// <param name="element"></param>
-        /// <returns></returns>
-        public JToken Compact(Context activeCtx, string activeProperty, JToken element)
+
+        public JToken Load(Uri uri)
         {
-            return compactionExpansion.Compact(activeCtx, activeProperty, element, true);
+            return loader.LoadDocument(uri);
         }
-        
-        
+
+        public Context ExtractContext(JToken json)
+        {
+            var parser = new ParsingAlgorithm(new Context(options), loader);
+            return parser.ParseContext(json);
+        }
+
+
+        public JToken Compact(JToken element)
+        {
+            return Compact(new Context(options), element);
+        }
+
+        public JToken Compact(Context activeCtx, JToken element)
+        {
+            return compactionExpansion.Compact(activeCtx, null, element, true);
+        }
+
 
         public JObject CompactContext(JToken input, JToken context)
         {
-           return compactionExpansion.CompactContext(input, context);
+            return compactionExpansion.CompactContext(input, context);
         }
 
         public JArray ExpandContext(JToken input)

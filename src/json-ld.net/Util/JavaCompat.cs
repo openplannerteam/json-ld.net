@@ -17,7 +17,7 @@ namespace JsonLD
     {
         public static T Synced<T>(this Task<T> t)
         {
-            t.ConfigureAwait(false).GetAwaiter().GetResult();
+           return t.ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public static string ToHexString(this int i)

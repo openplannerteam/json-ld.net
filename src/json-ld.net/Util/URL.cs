@@ -351,7 +351,7 @@ namespace JsonLD.Util
             // TODO: some input will need to be normalized to perform the expected
             // result with java
             // TODO: we can do this without using java URI!
-            if (baseUri == null)
+            if (string.IsNullOrEmpty(baseUri))
             {
                 return new Uri(pathToResolve);
             }
@@ -372,11 +372,9 @@ namespace JsonLD.Util
                     {
                         return new Uri(uri.Scheme + "://" + uri.Authority + uri.AbsolutePath + pathToResolve);
                     }
-                    else
-                    {
-                        // add query to the end manually (as URI.resolve does it wrong)
-                        return new Uri(uri.ToString() + pathToResolve);
-                    }
+
+                    // add query to the end manually (as URI.resolve does it wrong)
+                    return new Uri(uri.ToString() + pathToResolve);
                 }
 
                 uri = new Uri(uri, pathToResolve);

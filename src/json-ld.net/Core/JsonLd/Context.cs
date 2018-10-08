@@ -63,30 +63,16 @@ namespace JsonLD.Core
     {
         public JsonLdOptions Options;
 
-        public JObject TermDefinitions;
+        public JObject TermDefinitions = new JObject();
 
         /// <summary>
         /// Memoization of the Inverse object, will be calculated the first time it is needed
         /// </summary>
-        private JObject Inverse;
-
-        public Context() : this(new JsonLdOptions())
-        {
-        }
+        private JObject _inverse;
 
         public Context(JsonLdOptions options)
         {
             Init(options);
-        }
-
-        public Context(JObject map, JsonLdOptions options) : base(map)
-        {
-            Init(options);
-        }
-
-        public Context(JObject map) : base(map)
-        {
-            Init(new JsonLdOptions());
         }
 
         private Context(JToken context, JsonLdOptions opts) : base(context as JObject)
@@ -99,12 +85,10 @@ namespace JsonLD.Core
         private void Init(JsonLdOptions options)
         {
             Options = options;
-            if (options.Base != null)
+            if (!string.IsNullOrEmpty(options.Base))
             {
                 this["@base"] = options.Base;
             }
-
-            TermDefinitions = new JObject();
         }
 
 
@@ -120,13 +104,13 @@ namespace JsonLD.Core
         public JObject GetInverse()
         {
             // lazily create inverse
-            if (Inverse != null)
+            if (_inverse != null)
             {
-                return Inverse;
+                return _inverse;
             }
 
-            Inverse = this.CreateInverse();
-            return Inverse;
+            _inverse = this.CreateInverse();
+            return _inverse;
         }
    
         /// <summary>Retrieve container mapping.</summary>

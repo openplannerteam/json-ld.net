@@ -24,6 +24,7 @@ namespace JsonLD.Core
     public class HttpDocumentDownloader : IDocumentLoader
     {
         private readonly HttpClient _client;
+        public readonly List<Uri> DownloadedDocuments = new List<Uri>();
 
         public HttpDocumentDownloader(HttpClient client)
         {
@@ -38,6 +39,7 @@ namespace JsonLD.Core
 
         public JToken LoadDocument(Uri uri)
         {
+            DownloadedDocuments.Add(uri);
             // Data as string
             var data = _client.GetAsync(uri).Synced().Content.ReadAsStringAsync().Synced();
             return JObject.Parse(data);

@@ -466,7 +466,7 @@ namespace JsonLD.Core
                 JToken val = context[key];
                 if ("@vocab".Equals(key))
                 {
-                    if (val.IsNull() || JsonLdUtils.IsString(val))
+                    if (val.IsNull() || val.IsString())
                     {
                         SetNamespace(string.Empty, (string)val);
                     }
@@ -482,7 +482,7 @@ namespace JsonLD.Core
                     }
                     else
                     {
-                        if (!JsonLdUtils.IsKeyword(key))
+                        if (!JsonLd.IsKeyword(key))
                         {
                             // TODO: should we make sure val is a valid URI prefix (i.e. it
                             // ends with /# or ?)
@@ -493,7 +493,7 @@ namespace JsonLD.Core
                             }
                             else
                             {
-                                if (JsonLdUtils.IsObject(val) && ((JObject)val).ContainsKey("@id"
+                                if (val.IsObject() && ((JObject)val).ContainsKey("@id"
                                     ))
                                 {
                                     SetNamespace(key, (string)((JObject)val)["@id"]);
@@ -599,7 +599,7 @@ namespace JsonLD.Core
             // Collections.sort(subjects);
             foreach (string id in subjects)
             {
-                if (JsonLdUtils.IsRelativeIri(id))
+                if (id.IsRelativeIri())
                 {
                     continue;
                 }
@@ -619,30 +619,24 @@ namespace JsonLD.Core
                     else
                     {
                         // 4.3.2.2)
-                        if (JsonLdUtils.IsKeyword(localProperty))
+                        if (JsonLd.IsKeyword(localProperty))
                         {
                             continue;
                         }
-                        else
+
+                        // 4.3.2.3)
+                        if (localProperty.StartsWith("_:") && !api.opts.ProduceGeneralizedRdf)
                         {
-                            // 4.3.2.3)
-                            if (localProperty.StartsWith("_:") && !api.opts.ProduceGeneralizedRdf)
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                // 4.3.2.4)
-                                if (JsonLdUtils.IsRelativeIri(localProperty))
-                                {
-                                    continue;
-                                }
-                                else
-                                {
-                                    values = (JArray)node[localProperty];
-                                }
-                            }
+                            continue;
                         }
+
+                        // 4.3.2.4)
+                        if (localProperty.IsRelativeIri())
+                        {
+                            continue;
+                        }
+
+                        values = (JArray)node[localProperty];
                     }
                     RDFDataset.Node subject;
                     if (id.IndexOf("_:") == 0)
@@ -667,7 +661,7 @@ namespace JsonLD.Core
                     foreach (JToken item in values)
                     {
                         // convert @list to triples
-                        if (JsonLdUtils.IsList(item))
+                        if (item.IsDictContaining("@list"))
                         {
                             JArray list = (JArray)((JObject)item)["@list"];
                             RDFDataset.Node last = null;
@@ -722,7 +716,7 @@ namespace JsonLD.Core
         private RDFDataset.Node ObjectToRDF(JToken item)
         {
             // convert value object to RDF
-            if (JsonLdUtils.IsValue(item))
+            if (item.IsValue())
             {
                 JToken value = ((JObject)item)["@value"];
                 JToken datatype = ((JObject)item)["@type"];
@@ -736,68 +730,58 @@ namespace JsonLD.Core
                         return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JsonldConsts.XsdBoolean
                              : (string)datatype, null);
                     }
-                    else
+
+                    if (value.Type == JTokenType.Float || datatype.SafeCompare(JsonldConsts.XsdDouble))
                     {
-                        if (value.Type == JTokenType.Float || datatype.SafeCompare(JsonldConsts.XsdDouble))
+                        // Workaround for Newtonsoft.Json's refusal to cast a JTokenType.Integer to a double.
+                        if (value.Type == JTokenType.Integer)
                         {
-                            // Workaround for Newtonsoft.Json's refusal to cast a JTokenType.Integer to a double.
-                            if (value.Type == JTokenType.Integer)
-                            {
-                                int number = (int)value;
-                                value = new JValue((double)number);
-                            }
-                            // canonical double representation
-                            return new RDFDataset.Literal(string.Format(CultureInfo.InvariantCulture, "{0:0.0###############E0}", (double)value), datatype.IsNull() ? JsonldConsts.XsdDouble
-                                 : (string)datatype, null);
+                            int number = (int)value;
+                            value = new JValue((double)number);
                         }
-                        else
-                        {
-                            return new RDFDataset.Literal(string.Format("{0:0}",value), datatype.IsNull() ? JsonldConsts.XsdInteger
-                                 : (string)datatype, null);
-                        }
+                        // canonical double representation
+                        return new RDFDataset.Literal(string.Format(CultureInfo.InvariantCulture, "{0:0.0###############E0}", (double)value), datatype.IsNull() ? JsonldConsts.XsdDouble
+                            : (string)datatype, null);
                     }
+
+                    return new RDFDataset.Literal(string.Format("{0:0}",value), datatype.IsNull() ? JsonldConsts.XsdInteger
+                        : (string)datatype, null);
                 }
-                else
+
+                if (((JObject)item).ContainsKey("@language"))
                 {
-                    if (((JObject)item).ContainsKey("@language"))
-                    {
-                        return new RDFDataset.Literal((string)value, datatype.IsNull() ? JsonldConsts.RdfLangstring
-                             : (string)datatype, (string)((JObject)item)["@language"]);
-                    }
-                    else
-                    {
-                        var serializeObject = JsonConvert.SerializeObject(value, Formatting.None).Trim('"');
-                        return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JsonldConsts.XsdString
-                             : (string)datatype, null);
-                    }
+                    return new RDFDataset.Literal((string)value, datatype.IsNull() ? JsonldConsts.RdfLangstring
+                        : (string)datatype, (string)((JObject)item)["@language"]);
+                }
+
+                {
+                    var serializeObject = JsonConvert.SerializeObject(value, Formatting.None).Trim('"');
+                    return new RDFDataset.Literal(serializeObject, datatype.IsNull() ? JsonldConsts.XsdString
+                        : (string)datatype, null);
+                }
+            }
+
+            // convert string/node object to RDF
+            string id;
+            if (item.IsObject())
+            {
+                id = (string)((JObject)item)["@id"];
+                if (id.IsRelativeIri())
+                {
+                    return null;
                 }
             }
             else
             {
-                // convert string/node object to RDF
-                string id;
-                if (JsonLdUtils.IsObject(item))
-                {
-                    id = (string)((JObject)item)["@id"];
-                    if (JsonLdUtils.IsRelativeIri(id))
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    id = (string)item;
-                }
-                if (id.IndexOf("_:") == 0)
-                {
-                    // NOTE: once again no need to rename existing blank nodes
-                    return new RDFDataset.BlankNode(id);
-                }
-                else
-                {
-                    return new RDFDataset.IRI(id);
-                }
+                id = (string)item;
             }
+            if (id.IndexOf("_:") == 0)
+            {
+                // NOTE: once again no need to rename existing blank nodes
+                return new RDFDataset.BlankNode(id);
+            }
+
+            return new RDFDataset.IRI(id);
         }
 
         public virtual IList<string> GraphNames()

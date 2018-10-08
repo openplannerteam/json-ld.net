@@ -1096,7 +1096,7 @@ namespace JsonLD.Core.ProcessorAlgos
             // 5)
             // TODO: add support for getting a context from HTTP when content-type is set to a jsonld compatable format
             // 6)
-            var expanded = new JsonLdApi(_loader).Expand(activeCtx, input);
+            var expanded = Expand(activeCtx, null, input);
             // final step of Expansion Algorithm
             if (expanded.IsDictContaining("@graph", out var graph)
                 && graph.Count == 1)
