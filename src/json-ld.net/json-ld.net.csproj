@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>JSON-LD processor for .NET
-
-Implements the W3C JSON-LD 1.0 standard.</Description>
+    <Description>JSON-LD processor for .NET. Implements (part of) the W3C JSON-LD 1.0 standard.</Description>
     <VersionPrefix>1.0.6</VersionPrefix>
-    <Authors>NuGet;linked-data-dotnet</Authors>
-    <TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
+    <Authors>Pietervdvn;linked-data-dotnet</Authors>
     <AssemblyName>json-ld.net</AssemblyName>
     <PackageId>json-ld.net</PackageId>
     <PackageTags>json-ld;jsonld;json;linked-data;rdf;semantic;web</PackageTags>
@@ -17,6 +14,7 @@ Implements the W3C JSON-LD 1.0 standard.</Description>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />

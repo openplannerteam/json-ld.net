@@ -48,8 +48,8 @@ If you want control over the context, expansion and formatting, use
 `
 var data = processor.Load(URI); // Note that processor.Load is but a wrapper around the document loader. Nothing fancy happens here
 var context = processor.extractContext(data);
-var expanded = processor.Expand(context, data)
-processor.Compact(context, expanded)
+var expanded = processor.Expand(context, data);
+processor.Compact(context, expanded);
 `
 
 
