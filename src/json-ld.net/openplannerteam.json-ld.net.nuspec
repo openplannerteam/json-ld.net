@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>openplannerteam.Json-LD.Net</id>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <title>Json-LD.Net</title>
     <authors>Pieter Vander Vennet; Linked-Data.Net</authors>
     <owners>Pietervdvn</owners>
