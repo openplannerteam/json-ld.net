@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json.Linq;
@@ -174,6 +175,54 @@ namespace JsonLD.Core
         internal static JToken GetContents(this JToken v, string key)
         {
             return ((JObject) v)[key];
+        }
+        
+        
+        public static bool ArrayContains(this JArray array, string expected)
+        {
+
+            foreach (var elem in array)
+            {
+                if (elem.IsString() && elem.ToString().Equals(expected))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Loads 'json["@type"]' (which should be a JArray) and
+        /// checks that `expectedType` is one of the members of this array.
+        ///
+        /// If `expectedType` is not found, an exception is thrown.
+        /// </summary>
+        public static void AssertTypeIs(this JObject json, string expectedType)
+        {
+            if (ArrayContains((JArray) json["@type"], expectedType))
+            {
+                throw new ArgumentException("The passed JSON is not a Linked-Data JSon which follows the LinkedConnections ontology");
+            }
+        }
+
+        public static string GetValue(this JObject json, string uriKey)
+        {
+            return json[uriKey]["@value"].ToString();
+        }
+
+        public static Uri GetId(this JObject json, string uriKey)
+        {
+            return new Uri(json[uriKey]["@id"].ToString());
+        }
+        
+        /// <summary>
+        /// Gets json[uriKey][@value] and tries to parse this as an int.
+        /// If anything along the way is null, the value 0 is returned.
+        /// </summary>
+        public static int GetInt(this JToken json, string uriKey)
+        {
+            return int.Parse(json?[uriKey]?["@value"]?.ToString() ?? "0");
         }
     }
 }
