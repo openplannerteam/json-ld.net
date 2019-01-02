@@ -26,7 +26,7 @@ namespace JsonLD.Test
                 {Explicit = false, Embed = true, };
             var processor = new JsonLdProcessor(loader, options);
 
-            var loaded = processor.LoadExpanded(new Uri("https://graph.irail.be/sncb/connections?departureTime=2018-10-16T00:00:00.000Z"));
+            var loaded = processor.LoadExpanded(new Uri("https://graph.irail.be/sncb/connections"));
             Log(loaded.ToString());
         }
 

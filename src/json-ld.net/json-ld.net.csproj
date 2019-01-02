@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>JSON-LD processor for .NET. Implements (part of) the W3C JSON-LD 1.0 standard.</Description>
-    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionPrefix>0.1.1</VersionPrefix>
     <Authors>Pietervdvn;linked-data-dotnet</Authors>
     <AssemblyName>json-ld.net</AssemblyName>
     <PackageId>openplannerteam.Json-LD.net</PackageId>
