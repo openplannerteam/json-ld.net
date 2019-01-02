@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json.Linq;
 
@@ -247,22 +248,22 @@ namespace JsonLD.Core
 
         public static int GetInt(this JToken json, string uriKey)
         {
-            return int.Parse(json.GetLDValue(uriKey));
+            return int.Parse(json.GetLDValue(uriKey), CultureInfo.InvariantCulture);
         }
 
         public static int GetInt(this JToken json, string uriKey, int defaultValue)
         {
-            return int.Parse(json.GetLDValue(uriKey, "" + defaultValue));
+            return int.Parse(json.GetLDValue(uriKey, "" + defaultValue), CultureInfo.InvariantCulture);
         }
 
         public static float GetFloat(this JToken json, string uriKey)
         {
-            return float.Parse(json.GetLDValue(uriKey));
+            return float.Parse(json.GetLDValue(uriKey), CultureInfo.InvariantCulture);
         }
 
         public static float GetFloat(this JToken json, string uriKey, int defaultValue)
         {
-            return float.Parse(json.GetLDValue(uriKey, "" + defaultValue));
+            return float.Parse(json.GetLDValue(uriKey, "" + defaultValue), CultureInfo.InvariantCulture);
         }
 
 
@@ -279,7 +280,7 @@ namespace JsonLD.Core
 
         public static DateTime GetDate(this JToken token, string uriKey)
         {
-            return DateTime.Parse(token.GetLDValue(uriKey));
+            return DateTime.Parse(token.GetLDValue(uriKey), CultureInfo.InvariantCulture);
         }
     }
 }
