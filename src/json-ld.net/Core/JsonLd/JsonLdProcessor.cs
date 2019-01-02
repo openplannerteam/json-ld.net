@@ -1,4 +1,5 @@
 using System;
+using json_ld.net.Util;
 using JsonLD.Core.ContextAlgos;
 using JsonLD.Core.ProcessorAlgos;
 using JsonLD.Util;
@@ -24,7 +25,7 @@ namespace JsonLD.Core
         private readonly FlattenAlgo flatten;
 
         public JsonLdProcessor(IDocumentLoader loader, Uri basePath) :
-            this(loader, new JsonLdOptions(basePath.Scheme + "://" + basePath.Host))
+            this(loader, new JsonLdOptions(basePath.RemoveLastSegment().ToString()))
         {
         }
 
@@ -47,7 +48,11 @@ namespace JsonLD.Core
         public JToken LoadExpanded(Uri uri)
         {
             var raw = loader.LoadDocument(uri);
-            var ctx = new Context(options);
+            var ctx = new Context(new JsonLdOptions(uri.Scheme + "://" + uri.Host));
+            if (raw.IsDictContaining("@context", out var dct))
+            {
+                ctx = ExtractContext(dct["@object"]);
+            }
             return Expand(ctx, raw);
         }
 

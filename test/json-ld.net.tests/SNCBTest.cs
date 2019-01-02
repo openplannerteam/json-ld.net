@@ -5,18 +5,17 @@ using Xunit.Abstractions;
 
 namespace JsonLD.Test
 {
-    public class UsageExample
+    public class SNCBTest
     {
         private readonly ITestOutputHelper _output;
 
-        public UsageExample(ITestOutputHelper output)
+        public SNCBTest(ITestOutputHelper output)
         {
             _output = output;
         }
 
         [Fact]
-        // An example use case
-        public void TestSimpleUseCase()
+        public void SncbTest()
         {
             // If you want to provide your own http-client, use
             // new HttpDocumentDownloader(yourHttpClient);
@@ -25,21 +24,10 @@ namespace JsonLD.Test
 
             var options = new JsonLdOptions("http://graph.irail.be")
                 {Explicit = false, Embed = true, };
-            
             var processor = new JsonLdProcessor(loader, options);
 
-            var loaded = processor.Load(new Uri("http://graph.irail.be/sncb/connections"));
-            var ctx = processor.ExtractContext(loaded["@context"]);
-            var expanded = processor.Expand(ctx, loaded);
-            Log(ctx.Serialize().ToString());
-            //  Log(loaded.ToString());
-            foreach (var uri in loader.DownloadedDocuments)
-            {
-                Log($"Downloaded: {uri}");
-            }
-
-            var compacted = processor.Compact(ctx, expanded);
-            Log(compacted.ToString());
+            var loaded = processor.LoadExpanded(new Uri("https://graph.irail.be/sncb/connections?departureTime=2018-10-16T00:00:00.000Z"));
+            Log(loaded.ToString());
         }
 
         // ReSharper disable once UnusedMember.Local

@@ -49,6 +49,7 @@ namespace JsonLD.Util
             new Regex(
                 "^(?:([^:\\/?#]+):)?(?:\\/\\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\\/?#]*)(?::(\\d*))?))?((((?:[^?#\\/]*\\/)*)([^?#]*))(?:\\?([^#]*))?(?:#(.*))?)");
 
+     
         // things not populated by the regex (NOTE: i don't think it matters if
         // these are null or "" to start with)
         public static URL Parse(string url)

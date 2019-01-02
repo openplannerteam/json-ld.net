@@ -76,7 +76,7 @@ namespace JsonLD.Core
         /// <param name="key">They key that should be contained</param>
         /// <param name="dict">The typecasted dictionary will be saved in this variable</param>
         /// <returns></returns>
-        internal static bool IsDictContaining(this JToken v, string key, out JObject dict)
+        public static bool IsDictContaining(this JToken v, string key, out JObject dict)
         {
             if (v is JObject dict0 && dict0.ContainsKey(key))
             {
@@ -92,7 +92,7 @@ namespace JsonLD.Core
         /// <summary>Returns true if the given value is a JSON-LD value</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsValue(this JToken v)
+        public static bool IsValue(this JToken v)
         {
             return (v is JObject dict && dict.ContainsKey($"@value"));
         }
@@ -101,7 +101,7 @@ namespace JsonLD.Core
         /// <summary>Returns true if the given value is a JSON-LD Array</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsArray(this JToken v)
+        public static bool IsArray(this JToken v)
         {
             return v is JArray;
         }
@@ -109,7 +109,7 @@ namespace JsonLD.Core
         /// <summary>Returns true if the given value is a JSON-LD List</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsList(this JToken v)
+        public static bool IsList(this JToken v)
         {
             return v is JObject && ((IDictionary<string, JToken>) v).ContainsKey("@list");
         }
@@ -117,7 +117,7 @@ namespace JsonLD.Core
         /// <summary>Returns true if the given value is a JSON-LD Object</summary>
         /// <param name="v">the value to check.</param>
         /// <returns></returns>
-        internal static bool IsObject(this JToken v)
+        public static bool IsObject(this JToken v)
         {
             return v is JObject;
         }
@@ -144,43 +144,57 @@ namespace JsonLD.Core
         /// <returns></returns>
         public static bool IsNull(this JToken v)
         {
-            return v == null ||  v.Type == JTokenType.Null;
+            return v == null || v.Type == JTokenType.Null;
         }
-        
+
 
         /// <summary>Returns true if the given value is a blank node.</summary>
-        internal static bool IsBlankNode(JToken v)
+        public static bool IsBlankNode(JToken v)
         {
             // Note: A value is a blank node if all of these hold true:
             // 1. It is an Object.
             // 2. If it has an @id key its value begins with '_:'.
             // 3. It has no keys OR is not a @value, @set, or @list.
             if (!(v is JObject o)) return false;
-            
+
             if (o.ContainsKey("@id"))
             {
-                return ((string)o["@id"]).StartsWith("_:");
+                return ((string) o["@id"]).StartsWith("_:");
             }
 
             return o.Count == 0 || !(o.ContainsKey("@value") ||
                                      o.ContainsKey("@set") || o.ContainsKey("@list"));
         }
-        
+
         /// <summary>
         /// Gives the value associated with the key
         /// </summary>
         /// <param name="v"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        internal static JToken GetContents(this JToken v, string key)
+        public static JToken GetContents(this JToken v, string key, string defaultValue = null)
         {
-            return ((JObject) v)[key];
+            if (v.IsArray())
+            {
+                return GetContents(v[0], key);
+            }
+
+            if (v.IsDictContaining(key, out var dict))
+            {
+                return dict[key];
+            }
+
+            if (defaultValue == null)
+            {
+                throw new ArgumentException($"Could not find {key}");
+            }
+
+            return defaultValue;
         }
-        
-        
+
+
         public static bool ArrayContains(this JArray array, string expected)
         {
-
             foreach (var elem in array)
             {
                 if (elem.IsString() && elem.ToString().Equals(expected))
@@ -192,6 +206,14 @@ namespace JsonLD.Core
             return false;
         }
 
+        public static bool IsType(this JObject json, string expectedType)
+        {
+            var typeT = json.GetContents("@type");
+            return (typeT.IsString() && typeT.ToString().Equals(expectedType))
+                || ArrayContains((JArray) json.GetContents("@type"), expectedType);
+            
+        }
+
         /// <summary>
         /// Loads 'json["@type"]' (which should be a JArray) and
         /// checks that `expectedType` is one of the members of this array.
@@ -200,29 +222,64 @@ namespace JsonLD.Core
         /// </summary>
         public static void AssertTypeIs(this JObject json, string expectedType)
         {
-            if (ArrayContains((JArray) json["@type"], expectedType))
+            if (!json.IsType(expectedType))
             {
-                throw new ArgumentException("The passed JSON is not a Linked-Data JSon which follows the LinkedConnections ontology");
+                throw new ArgumentException(
+                    $"The passed JSON does not follow the expected ontology. Expected type is {expectedType}, known types are {json.GetContents("@type")}");
             }
         }
 
-        public static string GetValue(this JObject json, string uriKey)
+        public static string GetLDValue(this JToken json, string uriKey)
         {
-            return json[uriKey]["@value"].ToString();
+            return json.GetContents(uriKey).GetLDValue();
         }
 
-        public static Uri GetId(this JObject json, string uriKey)
+        public static string GetLDValue(this JToken json)
         {
-            return new Uri(json[uriKey]["@id"].ToString());
+            return json.GetContents("@value").ToString();
         }
-        
-        /// <summary>
-        /// Gets json[uriKey][@value] and tries to parse this as an int.
-        /// If anything along the way is null, the value 0 is returned.
-        /// </summary>
+
+        public static string GetLDValue(this JToken json, string uriKey, string defaultValue)
+        {
+            return json.GetContents(uriKey, defaultValue).GetContents("@value", defaultValue).ToString();
+        }
+
+
         public static int GetInt(this JToken json, string uriKey)
         {
-            return int.Parse(json?[uriKey]?["@value"]?.ToString() ?? "0");
+            return int.Parse(json.GetLDValue(uriKey));
+        }
+
+        public static int GetInt(this JToken json, string uriKey, int defaultValue)
+        {
+            return int.Parse(json.GetLDValue(uriKey, "" + defaultValue));
+        }
+
+        public static float GetFloat(this JToken json, string uriKey)
+        {
+            return float.Parse(json.GetLDValue(uriKey));
+        }
+
+        public static float GetFloat(this JToken json, string uriKey, int defaultValue)
+        {
+            return float.Parse(json.GetLDValue(uriKey, "" + defaultValue));
+        }
+
+
+        public static Uri GetId(this JToken json)
+        {
+            return new Uri(json.GetContents("@id").ToString());
+        }
+
+        public static Uri GetId(this JToken json, string uriKey)
+        {
+            return json.GetContents(uriKey).GetId();
+        }
+
+
+        public static DateTime GetDate(this JToken token, string uriKey)
+        {
+            return DateTime.Parse(token.GetLDValue(uriKey));
         }
     }
 }

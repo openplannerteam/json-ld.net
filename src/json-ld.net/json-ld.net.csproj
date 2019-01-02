@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>JSON-LD processor for .NET. Implements (part of) the W3C JSON-LD 1.0 standard.</Description>
-    <VersionPrefix>0.0.7</VersionPrefix>
+    <VersionPrefix>0.1.0</VersionPrefix>
     <Authors>Pietervdvn;linked-data-dotnet</Authors>
     <AssemblyName>json-ld.net</AssemblyName>
     <PackageId>openplannerteam.Json-LD.net</PackageId>
     <PackageTags>json-ld;jsonld;json;linked-data;rdf;semantic;web</PackageTags>
     <PackageIconUrl>https://avatars0.githubusercontent.com/u/30265183</PackageIconUrl>
     <PackageProjectUrl>https://github.com/openplannerteam/json-ld.net</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/openplannerteam/json-ld.net/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/openplannerteam/itinero-transit/blob/master/LICENSE</PackageLicenseUrl>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
@@ -17,7 +17,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40-client' ">
     <Reference Include="System" />
