@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using Newtonsoft.Json.Linq;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace JsonLD.Core
 {
@@ -75,7 +76,7 @@ namespace JsonLD.Core
         /// <summary>Returns true if the given value is a JSON-LD dictionary containing the key</summary>
         /// <param name="v">the value to check.</param>
         /// <param name="key">They key that should be contained</param>
-        /// <param name="dict">The typecasted dictionary will be saved in this variable</param>
+        /// <param name="dict">The type casted dictionary will be saved in this variable</param>
         /// <returns></returns>
         public static bool IsDictContaining(this JToken v, string key, out JObject dict)
         {
@@ -95,7 +96,7 @@ namespace JsonLD.Core
         /// <returns></returns>
         public static bool IsValue(this JToken v)
         {
-            return (v is JObject dict && dict.ContainsKey($"@value"));
+            return (v is JObject dict && dict.ContainsKey("@value"));
         }
 
 
@@ -112,7 +113,7 @@ namespace JsonLD.Core
         /// <returns></returns>
         public static bool IsList(this JToken v)
         {
-            return v is JObject && ((IDictionary<string, JToken>) v).ContainsKey("@list");
+            return v is JObject o && o.ContainsKey("@list");
         }
 
         /// <summary>Returns true if the given value is a JSON-LD Object</summary>
@@ -172,11 +173,13 @@ namespace JsonLD.Core
         /// </summary>
         /// <param name="v"></param>
         /// <param name="key"></param>
+        /// <param name="defaultValue">Return this value if nothing was found, throws an exception otherwise</param>
         /// <returns></returns>
         public static JToken GetContents(this JToken v, string key, string defaultValue = null)
         {
             if (v.IsArray())
             {
+                // ReSharper disable once TailRecursiveCall
                 return GetContents(v[0], key);
             }
 
@@ -207,12 +210,12 @@ namespace JsonLD.Core
             return false;
         }
 
+        // ReSharper disable once MemberCanBePrivate.Global
         public static bool IsType(this JObject json, string expectedType)
         {
             var typeT = json.GetContents("@type");
             return (typeT.IsString() && typeT.ToString().Equals(expectedType))
-                || ArrayContains((JArray) json.GetContents("@type"), expectedType);
-            
+                   || ArrayContains((JArray) json.GetContents("@type"), expectedType);
         }
 
         /// <summary>
@@ -221,26 +224,52 @@ namespace JsonLD.Core
         ///
         /// If `expectedType` is not found, an exception is thrown.
         /// </summary>
-        public static void AssertTypeIs(this JObject json, string expectedType)
+        // ReSharper disable once UnusedMember.Global
+        public static void AssertTypeIs(this JObject json, params string[] expectedType)
         {
-            if (!json.IsType(expectedType))
+            var matchFound = false;
+            foreach (var t in expectedType)
+            {
+                if (json.IsType(t))
+                {
+                    matchFound = true;
+                    break;
+                }
+            }
+
+            if (!matchFound && expectedType.Length == 1)
             {
                 throw new ArgumentException(
-                    $"The passed JSON does not follow the expected ontology. Expected type is {expectedType}, known types are {json.GetContents("@type")}");
+                    $"The passed JSON does not follow the expected ontology. Expected type is {expectedType[0]}, known types are {json.GetContents("@type")}");
             }
+
+            if (matchFound)
+            {
+                return;
+            }
+
+            var types = "";
+            foreach (var t in expectedType)
+            {
+                types += t + ", ";
+            }
+
+            types = types.Substring(types.Length - 2);
+            throw new ArgumentException(
+                $"The passed JSON does not follow the expected ontology. Expected type is one of {types}, known types are {json.GetContents("@type")}");
         }
 
-        public static string GetLDValue(this JToken json, string uriKey)
+        public static string GetLdValue(this JToken json, string uriKey)
         {
-            return json.GetContents(uriKey).GetLDValue();
+            return json.GetContents(uriKey).GetLdValue();
         }
 
-        public static string GetLDValue(this JToken json)
+        public static string GetLdValue(this JToken json)
         {
             return json.GetContents("@value").ToString();
         }
 
-        public static string GetLDValue(this JToken json, string uriKey, string defaultValue)
+        public static string GetLdValue(this JToken json, string uriKey, string defaultValue)
         {
             return json.GetContents(uriKey, defaultValue).GetContents("@value", defaultValue).ToString();
         }
@@ -248,22 +277,22 @@ namespace JsonLD.Core
 
         public static int GetInt(this JToken json, string uriKey)
         {
-            return int.Parse(json.GetLDValue(uriKey), CultureInfo.InvariantCulture);
+            return int.Parse(json.GetLdValue(uriKey), CultureInfo.InvariantCulture);
         }
 
         public static int GetInt(this JToken json, string uriKey, int defaultValue)
         {
-            return int.Parse(json.GetLDValue(uriKey, "" + defaultValue), CultureInfo.InvariantCulture);
+            return int.Parse(json.GetLdValue(uriKey, "" + defaultValue), CultureInfo.InvariantCulture);
         }
 
         public static float GetFloat(this JToken json, string uriKey)
         {
-            return float.Parse(json.GetLDValue(uriKey), CultureInfo.InvariantCulture);
+            return float.Parse(json.GetLdValue(uriKey), CultureInfo.InvariantCulture);
         }
 
         public static float GetFloat(this JToken json, string uriKey, int defaultValue)
         {
-            return float.Parse(json.GetLDValue(uriKey, "" + defaultValue), CultureInfo.InvariantCulture);
+            return float.Parse(json.GetLdValue(uriKey, "" + defaultValue), CultureInfo.InvariantCulture);
         }
 
 
@@ -280,7 +309,7 @@ namespace JsonLD.Core
 
         public static DateTime GetDate(this JToken token, string uriKey)
         {
-            return DateTime.Parse(token.GetLDValue(uriKey), CultureInfo.InvariantCulture);
+            return DateTime.Parse(token.GetLdValue(uriKey), CultureInfo.InvariantCulture);
         }
     }
 }
