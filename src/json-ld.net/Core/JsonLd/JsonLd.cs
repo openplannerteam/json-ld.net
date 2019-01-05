@@ -140,6 +140,25 @@ namespace JsonLD.Core
         {
             return v.Type == JTokenType.Boolean;
         }
+        
+        
+        
+        /// <summary>Returns true if the given value is a JSON-LD float</summary>
+        /// <param name="v">the value to check.</param>
+        /// <returns></returns>
+        public static bool IsFloat(this JToken v)
+        {
+            return v.Type == JTokenType.Float;
+        }
+        
+        /// <summary>Returns true if the given value is a JSON-LD Date</summary>
+        /// <param name="v">the value to check.</param>
+        /// <returns></returns>
+        public static bool IsDate(this JToken v)
+        {
+            return v.Type == JTokenType.Date;
+        }
+
 
         /// <summary>Returns true if the given value is a JSON-LD null object</summary>
         /// <param name="v">the value to check.</param>
@@ -175,7 +194,7 @@ namespace JsonLD.Core
         /// <param name="key"></param>
         /// <param name="defaultValue">Return this value if nothing was found, throws an exception otherwise</param>
         /// <returns></returns>
-        public static JToken GetContents(this JToken v, string key, string defaultValue = null)
+        public static JToken GetContents(this JToken v, string key, JToken defaultValue = null)
         {
             if (v.IsArray())
             {
@@ -266,7 +285,12 @@ namespace JsonLD.Core
 
         public static string GetLdValue(this JToken json)
         {
-            return json.GetContents("@value").ToString();
+            var value = json.GetContents("@value");
+            if (value.IsFloat())
+            {
+                return ((float) value).ToString(CultureInfo.InvariantCulture);
+            }
+            return value.ToString();
         }
 
         public static string GetLdValue(this JToken json, string uriKey, string defaultValue)
@@ -287,12 +311,28 @@ namespace JsonLD.Core
 
         public static float GetFloat(this JToken json, string uriKey)
         {
-            return float.Parse(json.GetLdValue(uriKey), CultureInfo.InvariantCulture);
+           // return float.Parse(json.GetLdValue(uriKey), CultureInfo.InvariantCulture);
+           var value = json.GetContents(uriKey).GetContents("@value");
+            if (value.IsFloat())
+            {
+                return (float) value;
+            }
+
+            return float.Parse(value.ToString(), CultureInfo.InvariantCulture);
         }
 
-        public static float GetFloat(this JToken json, string uriKey, int defaultValue)
+        public static float GetFloat(this JToken json, string uriKey, float defaultValue)
         {
-            return float.Parse(json.GetLdValue(uriKey, "" + defaultValue), CultureInfo.InvariantCulture);
+            // return float.Parse(json.GetLdValue(uriKey), CultureInfo.InvariantCulture);
+            var defaultToken = JToken.Parse("{value: "+defaultValue.ToString(CultureInfo.InvariantCulture)+"}");
+            defaultToken["@value"] = defaultValue;
+            var value = json.GetContents(uriKey, defaultToken).GetContents("@value", defaultValue);
+            if (value.IsFloat())
+            {
+                return (float) value;
+            }
+
+            return float.Parse(value.ToString(), CultureInfo.InvariantCulture);
         }
 
 
@@ -309,7 +349,15 @@ namespace JsonLD.Core
 
         public static DateTime GetDate(this JToken token, string uriKey)
         {
-            return DateTime.Parse(token.GetLdValue(uriKey), CultureInfo.InvariantCulture);
+        
+            // return float.Parse(json.GetLdValue(uriKey), CultureInfo.InvariantCulture);
+            var value = token.GetContents(uriKey).GetContents("@value");
+            if (value.IsDate())
+            {
+                return (DateTime) value;
+            }
+
+            return DateTime.Parse(value.ToString(), CultureInfo.InvariantCulture);
         }
     }
 }
